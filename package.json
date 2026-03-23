@@ -19,8 +19,7 @@
     "studio": "doppler run -- prisma studio",
     "all": "doppler run -- npx prisma migrate dev  && concurrently \"doppler run -- npm run dev\" \"doppler run -- npm run studio\"",
     "all:env": "npx prisma migrate dev  && concurrently \"npm run dev\" \"npm run studio\"",
-    "all:local": "npx prisma generate  && npx prisma db push  && concurrently \"npm run dev\" \"npm run studio\"",
-    "prepare": "husky"
+    "all:local": "npx prisma generate  && npx prisma db push  && concurrently \"npm run dev\" \"npm run studio\""
   },
   "overrides": {
     "lodash": "4.17.23"
