@@ -1,0 +1,160 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma_client"
+  binaryTargets = ["native", "windows", "linux-musl-openssl-3.0.x", "darwin-arm64"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// *
+///  * ---------------- USERS & ROLES ----------------
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  emailVerified Boolean        @default(false)
+  image         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  role          Role           @default(MEMBER)
+  accounts      Account[]
+  events        Event[]        @relation("CreatedEvents")
+  blogs         Blog[]         @relation("BlogAuthor")
+  registrations Registration[]
+  sessions      Session[]
+
+  @@map("user")
+}
+
+enum Role {
+  MEMBER
+  CONTRIBUTOR
+  ADMIN
+}
+
+/// *
+///  * ---------------- EVENTS ----------------
+model Event {
+  id              String         @id @default(cuid())
+  name            String
+  description     String?
+  location        String
+  dateStart       DateTime       @default(now())
+  dateEnd         DateTime       @default(now())
+  openAt          DateTime       @default(now())
+  closeAt         DateTime       @default(now())
+  visibleToGuests Boolean        @default(false)
+  maxParticipants Int
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @default(now()) @updatedAt
+  creatorId       String
+  creator         User           @relation("CreatedEvents", fields: [creatorId], references: [id])
+  registrations   Registration[]
+
+  @@map("event")
+}
+
+/// *
+///  * ---------------- REGISTRATIONS ----------------
+model Registration {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  participants Int      @default(1)
+  createdAt    DateTime @default(now())
+  eventId      String
+  userId       String?
+  event        Event    @relation(fields: [eventId], references: [id])
+  user         User?    @relation(fields: [userId], references: [id])
+
+  @@map("registration")
+}
+
+/// *
+///  * ---------------- SESSIONS & ACCOUNTS ----------------
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@map("verification")
+}
+
+model Gallery {
+  id         Int         @id @default(autoincrement())
+  key        String      @unique
+  url        String
+  type       GalleryType @default(GALLERY)
+  uploadedBy String
+  createdAt  DateTime    @default(now())
+}
+
+enum GalleryType {
+  EVENT
+  GALLERY
+}
+
+model Blog {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String?
+  excerpt   String?
+  image     String?
+  published Boolean  @default(false)
+  views     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  authorId  String
+  author    User     @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("blog")
+}
+
+model Newsletter {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  @@map("newsletter")
+}
