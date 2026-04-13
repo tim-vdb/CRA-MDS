@@ -106,7 +106,7 @@ model Clients {
   startDate DateTime?
   endDate   DateTime?
 
-  cras        CRA[]
+  activities        activity[]
   inviteLinks InviteLink[]
 
   createdAt DateTime  @default(now())
@@ -117,7 +117,7 @@ model Clients {
   @@index([company])
 }
 
-model CRA {
+model activity {
   id String @id @default(cuid())
 
   clientId String
@@ -173,7 +173,7 @@ model Invoice {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  cra    CRA?    @relation(fields: [craId], references: [id])
+  activity    activity?    @relation(fields: [craId], references: [id])
   client Clients @relation(fields: [clientId], references: [id])
 
   @@index([clientId, issuedAt])
