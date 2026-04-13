@@ -102,6 +102,7 @@ model Clients {
   vatNumber String?
 
   dailyRate Float? // TJM (Taux Journalier Moyen)
+  maxDays   Float? // Nombre de jours maximum alloués pour le contrat
   isActive  Boolean   @default(true)
   startDate DateTime?
   endDate   DateTime?
