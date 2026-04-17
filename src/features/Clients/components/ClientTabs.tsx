@@ -11,14 +11,14 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import type { CRA, Clients, Invoice, InvoiceStatus } from "@/generated/prisma_client"
+import type { Activity, Clients, Invoice, InvoiceStatus } from "@/generated/prisma_client"
 
 const MONTHS_FR = [
     'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
     'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
 ]
 
-type CRAWithInvoices = CRA & { invoices: Invoice[] }
+type CRAWithInvoices = Activity & { invoices: Invoice[] }
 
 function formatEur(value: number) {
     return value.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + '\u00a0€'
