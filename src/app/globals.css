@@ -75,6 +75,12 @@
   @apply w-full mx-auto px-8 sm:max-w-[610px] md:max-w-[840px] lg:max-w-[1124px] xl:max-w-[1420px];
 }
 
+
+@utility items_sidebar {
+  @apply transition-[opacity_transform_max-width] text-sm duration-900 ease-in-out group-data-[collapsible=icon]:max-w-0 group-data-[collapsible=icon]:translate-x-2 group-data-[collapsible=icon]:opacity-0;
+}
+
+
 @layer base {
 
   *,

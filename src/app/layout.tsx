@@ -1,7 +1,9 @@
+import { getUser } from '@/lib/auth-session';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { Toaster } from 'sonner';
+import { ThemeProvider } from '@/components/ux/theme-provider';
+import { Shell } from './shell';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -18,18 +20,21 @@ export const metadata: Metadata = {
   description: '',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getUser();
+
   return (
     <html lang="fr" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-inter antialiased min-h-screen bg-white dark:bg-gray-extra-dark`}
       >
-        {children}
-        <Toaster />
+        <ThemeProvider attribute="class" defaultTheme="system" disableTransitionOnChange>
+          <Shell user={user}>{children}</Shell>
+        </ThemeProvider>
       </body>
     </html>
   );
