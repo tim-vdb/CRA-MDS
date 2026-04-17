@@ -9,7 +9,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
     const client = await prisma.clients.findUnique({
         where: { id },
         include: {
-            cras: { include: { invoices: true }, orderBy: { date: "desc" } },
+            activities: { include: { invoices: true }, orderBy: { date: "desc" } },
             invoices: { orderBy: { issuedAt: "desc" } },
         },
     });
@@ -19,7 +19,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
     return (
         <div className="p-4 space-y-4">
             <ClientInfos client={client} />
-            <ClientTabs cras={client.cras} invoices={client.invoices} client={client} />
+            <ClientTabs cras={client.activities} invoices={client.invoices} client={client} />
         </div>
     );
 }
