@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useState } from "react";
-import { signUp } from "@/lib/auth-client";
 import {
   Form,
   FormField,
@@ -19,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, X } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import useEmailOtp from "@/hooks/use-email-otp";
 
 const SignUpFormSchema = z
   .object({
@@ -27,8 +28,8 @@ const SignUpFormSchema = z
     email: z.string().email("Email invalide"),
     password: z
       .string()
-      .min(6, "The password must contain at least 6 characters"),
-    passwordConfirmation: z.string().min(6, "La confirmation est obligatoire"),
+      .min(12, "The password must contain at least 12 characters"),
+    passwordConfirmation: z.string().min(12, "La confirmation est obligatoire"),
   })
   .refine((data) => data.password === data.passwordConfirmation, {
     message: "The passwords do not match",
@@ -40,6 +41,7 @@ export default function SignUpForm() {
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { sendVerificationOtp } = useEmailOtp();
 
   const form = useForm<z.infer<typeof SignUpFormSchema>>({
     resolver: zodResolver(SignUpFormSchema),
@@ -62,22 +64,51 @@ export default function SignUpForm() {
     }
   };
 
+  async function convertImageToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function onSubmit(values: z.infer<typeof SignUpFormSchema>) {
     setLoading(true);
     try {
-      await signUp.email({
+      const payload = {
+        name: `${values.firstName} ${values.lastName}`,
         email: values.email,
         password: values.password,
-        name: `${values.firstName} ${values.lastName}`,
         image: image ? await convertImageToBase64(image) : "",
         callbackURL: "/",
+      };
+
+      const res = await fetch('/api/auth/sign-up/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include',
       });
-      toast.success("User created successfully");
-      router.push("/");
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const message = data?.message || data?.error || 'An error occurred';
+        toast.error(message);
+        return;
+      }
+
+      const otpResult = await sendVerificationOtp(values.email, 'email-verification');
+      if (!otpResult) {
+        toast.error("Account created but OTP email was not sent.");
+        return;
+      }
+
+      toast.success('Account created. Verify your email with the OTP code.');
+      router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
       router.refresh();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "An error occurred";
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -85,20 +116,20 @@ export default function SignUpForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="bg-white border-4 border-blue-400 rounded-3xl p-10 w-full max-w-md shadow-lg mb-24">
+    <div className="flex items-center justify-center text-foreground h-[calc(100svh-5rem)]">
+      <div className="bg-white dark:bg-white border-4 border-zinc-200 dark:border-zinc-300 rounded-3xl p-10 w-full max-w-md shadow-lg">
 
         {/* HEADER */}
         <div className="text-center mb-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-blue-400 dark:text-black font-inter">
+          <p className="text-xs uppercase tracking-[0.25em] text-zinc-700 dark:text-zinc-700 font-inter">
             Sign up
           </p>
 
-          <h2 className="text-4xl leading-tight text-black dark:text-black">
+          <h2 className="text-4xl leading-tight text-zinc-950 dark:text-zinc-900">
             Create your player account
           </h2>
 
-          <p className="font-inter text-sm text-black mt-3">
+          <p className="font-inter text-sm text-zinc-600 dark:text-zinc-600 mt-3">
             Fill in the fields to join Chef’s Blueprint.
           </p>
         </div>
@@ -116,12 +147,12 @@ export default function SignUpForm() {
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First name</FormLabel>
+                    <FormLabel className="text-zinc-800 dark:text-zinc-900">First name</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Ex: Camille"
                         {...field}
-                        className="border border-blue-400 rounded-md px-3 py-2 focus:outline-none"
+                        className="rounded-md border-zinc-300 dark:border-zinc-300 bg-white dark:bg-zinc-50 text-zinc-900 dark:text-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-500 px-3 py-2 focus:outline-none"
                       />
                     </FormControl>
                     <FormMessage />
@@ -134,12 +165,12 @@ export default function SignUpForm() {
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last name</FormLabel>
+                    <FormLabel className="text-zinc-800 dark:text-zinc-900">Last name</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Ex: Martin"
                         {...field}
-                        className="border border-blue-400 rounded-md px-3 py-2 focus:outline-none"
+                        className="rounded-md border-zinc-300 dark:border-zinc-300 bg-white dark:bg-zinc-50 text-zinc-900 dark:text-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-500 px-3 py-2 focus:outline-none"
                       />
                     </FormControl>
                     <FormMessage />
@@ -154,13 +185,13 @@ export default function SignUpForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-zinc-800 dark:text-zinc-900">Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder="example@mail.com"
                       {...field}
-                      className="border border-blue-400 rounded-md px-3 py-2 focus:outline-none"
+                      className="rounded-md border-zinc-300 dark:border-zinc-300 bg-white dark:bg-zinc-50 text-zinc-900 dark:text-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-500 px-3 py-2 focus:outline-none"
                     />
                   </FormControl>
                   <FormMessage />
@@ -174,13 +205,13 @@ export default function SignUpForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel className="text-zinc-800 dark:text-zinc-900">Password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
                       placeholder="••••••••"
                       {...field}
-                      className="border border-blue-400 rounded-md px-3 py-2 focus:outline-none"
+                      className="rounded-md border-zinc-300 dark:border-zinc-300 bg-white dark:bg-zinc-50 text-zinc-900 dark:text-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-500 px-3 py-2 focus:outline-none"
                     />
                   </FormControl>
                   <FormMessage />
@@ -194,13 +225,13 @@ export default function SignUpForm() {
               name="passwordConfirmation"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm password</FormLabel>
+                  <FormLabel className="text-zinc-800 dark:text-zinc-900">Confirm password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
                       placeholder="••••••••"
                       {...field}
-                      className="border border-blue-400 rounded-md px-3 py-2 focus:outline-none"
+                      className="rounded-md border-zinc-300 dark:border-zinc-300 bg-white dark:bg-zinc-50 text-zinc-900 dark:text-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-500 px-3 py-2 focus:outline-none"
                     />
                   </FormControl>
                   <FormMessage />
@@ -210,7 +241,7 @@ export default function SignUpForm() {
 
             {/* IMAGE UPLOAD */}
             <div className="grid gap-2">
-              <FormLabel>Profile picture (optional)</FormLabel>
+              <FormLabel className="text-zinc-800 dark:text-zinc-900">Profile picture (optional)</FormLabel>
               <div className="flex items-end gap-4">
                 {imagePreview && (
                   <div className="relative w-16 h-16 rounded-sm overflow-hidden">
@@ -230,11 +261,11 @@ export default function SignUpForm() {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="w-full"
+                    className="w-full border-zinc-300 dark:border-zinc-300 bg-white dark:bg-zinc-50 text-zinc-900 dark:text-zinc-900 file:text-zinc-800 dark:file:text-zinc-800"
                   />
                   {imagePreview && (
                     <X
-                      className="cursor-pointer"
+                      className="cursor-pointer text-zinc-700 dark:text-zinc-700"
                       onClick={() => {
                         setImage(null);
                         setImagePreview(null);
@@ -248,7 +279,7 @@ export default function SignUpForm() {
             {/* SUBMIT */}
             <Button
               type="submit"
-              className="rounded-md bg-blue-400 text-white py-3 uppercase tracking-[0.2em] text-xs font-semibold hover:bg-blue-500 transition"
+              className="rounded-md dark:bg-background text-white py-3 uppercase tracking-[0.2em] text-xs font-semibold  transition"
               disabled={loading}
             >
               {loading ? (
@@ -257,18 +288,13 @@ export default function SignUpForm() {
                 "Sign up"
               )}
             </Button>
+
+            <Link href="/login" className="text-sm text-zinc-600 dark:text-zinc-700 text-center underline">
+              Already have an account?
+            </Link>
           </form>
         </Form>
       </div>
     </div>
   );
-}
-
-async function convertImageToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }
