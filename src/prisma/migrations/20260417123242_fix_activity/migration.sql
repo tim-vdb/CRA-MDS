@@ -87,6 +87,7 @@ CREATE TABLE "Clients" (
     "siret" TEXT,
     "vatNumber" TEXT,
     "dailyRate" DOUBLE PRECISION,
+    "maxDays" DOUBLE PRECISION,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "startDate" TIMESTAMP(3),
     "endDate" TIMESTAMP(3),
@@ -97,7 +98,7 @@ CREATE TABLE "Clients" (
 );
 
 -- CreateTable
-CREATE TABLE "CRA" (
+CREATE TABLE "Activity" (
     "id" TEXT NOT NULL,
     "clientId" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
@@ -112,7 +113,7 @@ CREATE TABLE "CRA" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "CRA_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Activity_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -168,10 +169,10 @@ CREATE INDEX "Clients_name_idx" ON "Clients"("name");
 CREATE INDEX "Clients_company_idx" ON "Clients"("company");
 
 -- CreateIndex
-CREATE INDEX "CRA_clientId_idx" ON "CRA"("clientId");
+CREATE INDEX "Activity_clientId_idx" ON "Activity"("clientId");
 
 -- CreateIndex
-CREATE INDEX "CRA_month_year_idx" ON "CRA"("month", "year");
+CREATE INDEX "Activity_month_year_idx" ON "Activity"("month", "year");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "client_invite_token_key" ON "client_invite"("token");
@@ -198,13 +199,13 @@ ALTER TABLE "session" ADD CONSTRAINT "session_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "account" ADD CONSTRAINT "account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "CRA" ADD CONSTRAINT "CRA_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Clients"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Activity" ADD CONSTRAINT "Activity_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Clients"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "client_invite" ADD CONSTRAINT "client_invite_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Clients"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_craId_fkey" FOREIGN KEY ("craId") REFERENCES "CRA"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_craId_fkey" FOREIGN KEY ("craId") REFERENCES "Activity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Invoice" ADD CONSTRAINT "Invoice_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "Clients"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
