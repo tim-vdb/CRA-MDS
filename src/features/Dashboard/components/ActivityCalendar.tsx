@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
 import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -31,8 +32,10 @@ export function ActivityCalendar() {
     return new Set(filteredActivities.map((a) => dateKey(new Date(a.date))))
   }, [filteredActivities])
 
+  const router = useRouter()
+
   function handleActivityClick(activity: ActivityWithClient) {
-    console.log("Activity clicked:", activity.id)
+    router.push(`/clients/${activity.clientId}`)
   }
 
   return (

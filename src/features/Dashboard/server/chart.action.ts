@@ -2,9 +2,9 @@
 
 import { prisma } from "@/lib/prisma"
 
-export async function getActivitiesForChart(year: number, clientId?: string) {
-  const start = new Date(Date.UTC(year, 0, 1))
-  const end = new Date(Date.UTC(year + 1, 0, 1))
+export async function getActivitiesForChart(month: number, year: number, clientId?: string) {
+  const start = new Date(Date.UTC(year, month - 1, 1))
+  const end = new Date(Date.UTC(year, month, 1))
 
   const activities = await prisma.activity.findMany({
     where: {
