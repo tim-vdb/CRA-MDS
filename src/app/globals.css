@@ -137,21 +137,21 @@
   }
 
   h2 {
-    @apply text-[1.6rem] mt-10 mb-5 font-bold;
+    @apply text-[1.6rem] font-bold;
   }
 
   h3 {
-    @apply text-[1rem] mt-10 mb-5 font-semibold;
+    @apply text-[1rem] font-semibold;
   }
 
   h4,
   h5,
   h6 {
-    @apply text-[length:inherit] font-[weight:inherit] mt-5 mb-3;
+    @apply text-[length:inherit] font-[weight:inherit];
   }
 
   h1 {
-    @apply text-[2rem] mt-10 mb-5 font-bold text-center;
+    @apply text-[2rem] font-bold text-center;
   }
 
   b,
