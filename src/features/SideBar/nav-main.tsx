@@ -14,9 +14,8 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  useSidebar
 } from "@/components/ui/sidebar"
-import { ChevronRight, House, Settings2, type LucideIcon } from "lucide-react"
+import { ChevronRight, House, Settings2, Users, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 
 type NavSubItem = {
@@ -33,8 +32,8 @@ type NavMainDropdown = {
 }
 
 type NavMain = {
-  title: string,
-  url: string,
+  title: string
+  url: string
   icon: LucideIcon
 }
 
@@ -42,10 +41,14 @@ const navMainItem: NavMain[] = [
   {
     title: "Accueil",
     url: "/",
-    icon: House
+    icon: House,
+  },
+  {
+    title: "Clients",
+    url: "/clients",
+    icon: Users,
   },
 ]
-
 
 const navDropdown: NavMainDropdown[] = [
   {
@@ -62,8 +65,6 @@ const navDropdown: NavMainDropdown[] = [
 ]
 
 export function NavMain() {
-  const { isMobile } = useSidebar()
-
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Platform</SidebarGroupLabel>
@@ -71,10 +72,10 @@ export function NavMain() {
         {navMainItem.map((item) => (
           <SidebarMenuItem key={item.title}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
+              <Link href={item.url}>
                 <item.icon />
                 <span>{item.title}</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}

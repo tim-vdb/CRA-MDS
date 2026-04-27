@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/sidebar"
 import * as React from "react"
 import { NavMain } from "./nav-main"
-import { NavProjects } from "./nav-projects"
+
 import { TeamSwitcher } from "./team-switcher"
 import { ToggleDarkMode } from "../DarkMode/ToggleDarkMode"
 
@@ -26,7 +26,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
-        <NavProjects />
       </SidebarContent>
       <SidebarFooter>
 
