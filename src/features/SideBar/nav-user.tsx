@@ -1,16 +1,8 @@
 "use client"
 
 import { useUser } from "@/context/UserContext"
-import {
-  ChevronsUpDown,
-  House,
-  LayoutTemplate,
-  Shield,
-  Star,
-  UserRound
-} from "lucide-react"
+import { ChevronsUpDown, LogOut as LogOutIcon, Settings } from "lucide-react"
 import Link from "next/link"
-
 import {
   Avatar,
   AvatarFallback,
@@ -19,13 +11,11 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { usePathname } from "next/navigation"
 import LogOut from "../Logout/components/logout"
 
 export function NavUser() {
@@ -35,86 +25,48 @@ export function NavUser() {
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "??"
 
-  const pathname = usePathname();
-  const isHomePage = pathname === '/';
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-2 rounded-lg px-2 py-1 text-sm outline-none hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-          <Avatar className="h-8 w-8 rounded-full">
-            <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? ""} />
-            <AvatarFallback className="rounded-full text-xs bg-black dark:bg-white text-white dark:text-black">{initials}</AvatarFallback>
+        <button className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm outline-none transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-900 data-[state=open]:bg-zinc-100 dark:data-[state=open]:bg-zinc-900">
+          <Avatar className="h-8 w-8 rounded-lg ring-2 ring-zinc-200 dark:ring-zinc-700">
+            <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? ""} className="object-cover" />
+            <AvatarFallback className="rounded-lg bg-linear-to-br from-primary to-primary/60 text-white text-xs font-semibold">{initials}</AvatarFallback>
           </Avatar>
-          <div className="hidden md:grid text-left text-sm leading-tight">
-            <span className="truncate font-semibold text-black dark:text-white">{user?.name ?? "Utilisateur"}</span>
-            <span className="truncate text-xs text-muted-foreground dark:text-white">{user?.email ?? ""}</span>
+          <div className="hidden sm:grid text-left text-sm leading-tight max-w-[120px]">
+            <span className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{user?.name ?? "Utilisateur"}</span>
+            <span className="truncate text-xs text-zinc-600 dark:text-zinc-400">{user?.email ?? ""}</span>
           </div>
-          <ChevronsUpDown className="ml-1 size-4 text-muted-foreground" />
+          <ChevronsUpDown className="hidden sm:block ml-auto h-4 w-4 text-zinc-500 dark:text-zinc-400" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="min-w-56 rounded-lg"
+        className="w-56 rounded-lg border-zinc-200 dark:border-zinc-700"
         side="bottom"
         align="end"
         sideOffset={8}
       >
         <DropdownMenuLabel className="p-0 font-normal">
-          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-            <Avatar className="h-8 w-8 rounded-full">
-              <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? ""} />
-              <AvatarFallback className="rounded-full text-xs">{initials}</AvatarFallback>
+          <div className="flex items-center gap-3 px-2 py-3 text-left">
+            <Avatar className="h-9 w-9 rounded-lg ring-2 ring-zinc-200 dark:ring-zinc-700">
+              <AvatarImage src={user?.image ?? undefined} alt={user?.name ?? ""} className="object-cover" />
+              <AvatarFallback className="rounded-lg bg-linear-to-br from-primary to-primary/60 text-white text-xs font-semibold">{initials}</AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">{user?.name ?? "Utilisateur"}</span>
-              <span className="truncate text-xs text-muted-foreground">{user?.email ?? ""}</span>
+            <div className="flex flex-col flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold text-zinc-900 dark:text-zinc-50">{user?.name ?? "Utilisateur"}</span>
+              <span className="truncate text-xs text-zinc-600 dark:text-zinc-400">{user?.email ?? ""}</span>
             </div>
           </div>
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            <Link href="/account">
-              <LayoutTemplate className="size-4" />
-              Dashboard
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/account/profile">
-              <UserRound className="size-4" />
-              Account
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/account/profile">
-              <Star className="size-4" />
-              Badges
-            </Link>
-          </DropdownMenuItem>
-          {!isHomePage && (
-            <DropdownMenuItem asChild>
-              <Link href="/">
-                <House className="size-4" />
-                Homepage
-              </Link>
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuGroup>
-        {user && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link href="/admin">
-                  <Shield className="size-4" />
-                  Administration
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </>
-        )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuSeparator className="bg-zinc-200 dark:bg-zinc-700" />
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <Link href="/account" className="flex items-center gap-2 px-2 py-2 text-sm text-zinc-900 dark:text-zinc-50 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-900">
+            <Settings className="h-4 w-4" />
+            <span>Mon compte</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="bg-zinc-200 dark:bg-zinc-700" />
+        <DropdownMenuItem className="cursor-pointer p-0">
           <LogOut />
         </DropdownMenuItem>
       </DropdownMenuContent>

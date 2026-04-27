@@ -1,97 +1,298 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import type { Clients } from "@/generated/prisma_client";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import type { Activity, Clients, Invoice } from "@/generated/prisma_client";
+import {
+    Mail,
+    Phone,
+    MapPin,
+    Building2,
+    Hash,
+    Receipt,
+    CalendarRange,
+    Pencil,
+    Briefcase,
+} from "lucide-react";
+
+type ActivityWithInvoices = Activity & { invoices: Invoice[] };
+export type ClientWithRelations = Clients & {
+    activities: ActivityWithInvoices[];
+    invoices: Invoice[];
+};
 
 interface ClientInfosProps {
-    client: Clients;
+    client: ClientWithRelations;
+}
+
+function InfoItem({
+    icon: Icon,
+    label,
+    value,
+}: {
+    icon: React.ElementType;
+    label: string;
+    value: string;
+}) {
+    return (
+        <div className="flex items-start gap-2.5">
+            <Icon className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="min-w-0">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground mb-0.5">
+                    {label}
+                </p>
+                <p className="text-sm leading-snug break-words">{value}</p>
+            </div>
+        </div>
+    );
+}
+
+function KpiCard({
+    label,
+    value,
+    sub,
+    warning,
+}: {
+    label: string;
+    value: string;
+    sub?: string;
+    warning?: boolean;
+}) {
+    return (
+        <Card className={warning ? "border-orange-300 dark:border-orange-700" : ""}>
+            <CardContent className="p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    {label}
+                </p>
+                <p
+                    className={`text-2xl font-bold mt-1.5 tabular-nums leading-none ${
+                        warning ? "text-orange-600 dark:text-orange-400" : ""
+                    }`}
+                >
+                    {value}
+                </p>
+                {sub && (
+                    <p className="text-xs text-muted-foreground mt-1.5 leading-snug">{sub}</p>
+                )}
+            </CardContent>
+        </Card>
+    );
 }
 
 export default function ClientInfos({ client }: ClientInfosProps) {
+    const initials = client.name
+        .split(" ")
+        .map((w) => w[0] ?? "")
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+
+    const dailyRate = client.dailyRate ?? 0;
+    const maxDays = client.maxDays ?? 0;
+
+    const totalDays = client.activities.reduce((sum, a) => sum + a.daysWorked, 0);
+    const totalTheorique = dailyRate * totalDays;
+    const totalPaid = client.invoices
+        .filter((inv) => inv.status === "PAID")
+        .reduce((sum, inv) => sum + inv.amountHT, 0);
+    const totalPending = client.invoices
+        .filter((inv) => inv.status === "ISSUED" || inv.status === "OVERDUE")
+        .reduce((sum, inv) => sum + inv.amountHT, 0);
+
+    const budget = dailyRate * maxDays;
+    const progress = maxDays > 0 ? Math.min(110, (totalDays / maxDays) * 100) : null;
+    const progressClamped = progress !== null ? Math.min(100, progress) : null;
+
+    const fmtEur = (v: number) =>
+        v.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) +
+        " €";
+    const fmtDays = (v: number) =>
+        v.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 1 }) +
+        " j";
+
+    const progressBarColor =
+        progress === null
+            ? ""
+            : progress >= 100
+            ? "bg-red-500"
+            : progress >= 80
+            ? "bg-orange-500"
+            : "bg-primary";
+
+    const addressLine = [
+        client.address,
+        [client.postalCode, client.city].filter(Boolean).join(" "),
+        client.country !== "France" ? client.country : null,
+    ]
+        .filter(Boolean)
+        .join(", ");
+
     return (
-        <Card>
-            <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-4">
-                    <div>
-                        <CardTitle className="text-xl">{client.name}</CardTitle>
-                        {client.company && (
-                            <p className="text-sm text-muted-foreground mt-0.5">{client.company}</p>
-                        )}
-                    </div>
-                    <span className={`shrink-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${client.isActive ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
-                        {client.isActive ? 'Actif' : 'Inactif'}
-                    </span>
-                </div>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-                    {/* Colonne gauche — Contact & Adresse */}
-                    <div className="space-y-3">
-                        {client.email && (
-                            <div>
-                                <p className="text-xs text-muted-foreground">Email</p>
-                                <p className="text-sm">{client.email}</p>
+        <div className="space-y-4">
+            {/* ── Header ─────────────────────────────────────── */}
+            <Card>
+                <CardContent className="pt-6 pb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                        {/* Avatar */}
+                        <div className="h-14 w-14 rounded-xl bg-primary/10 text-primary font-bold text-lg flex items-center justify-center shrink-0 border border-primary/20 select-none">
+                            {initials}
+                        </div>
+
+                        {/* Name + meta */}
+                        <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                                <h1 className="text-2xl font-bold tracking-tight leading-none">
+                                    {client.name}
+                                </h1>
+                                <Badge
+                                    variant="outline"
+                                    className={
+                                        client.isActive
+                                            ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+                                            : "bg-neutral-100 text-neutral-500 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-700"
+                                    }
+                                >
+                                    {client.isActive ? "Actif" : "Inactif"}
+                                </Badge>
                             </div>
-                        )}
-                        {client.phone && (
-                            <div>
-                                <p className="text-xs text-muted-foreground">Téléphone</p>
-                                <p className="text-sm">{client.phone}</p>
-                            </div>
-                        )}
-                        {client.address && (
-                            <div>
-                                <p className="text-xs text-muted-foreground">Adresse</p>
-                                <p className="text-sm">{client.address}</p>
-                                {(client.city || client.postalCode) && (
-                                    <p className="text-sm">
-                                        {client.postalCode} {client.city}
-                                    </p>
-                                )}
-                                {client.country && (
-                                    <p className="text-sm">{client.country}</p>
-                                )}
-                            </div>
-                        )}
+
+                            {client.company && (
+                                <p className="text-sm text-muted-foreground mt-1.5 flex items-center gap-1.5">
+                                    <Building2 className="h-3.5 w-3.5 shrink-0" />
+                                    {client.company}
+                                </p>
+                            )}
+
+                            {(client.startDate || client.endDate) && (
+                                <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5">
+                                    <CalendarRange className="h-3.5 w-3.5 shrink-0" />
+                                    {client.startDate
+                                        ? new Date(client.startDate).toLocaleDateString("fr-FR", {
+                                              day: "numeric",
+                                              month: "long",
+                                              year: "numeric",
+                                          })
+                                        : "?"}
+                                    &nbsp;→&nbsp;
+                                    {client.endDate
+                                        ? new Date(client.endDate).toLocaleDateString("fr-FR", {
+                                              day: "numeric",
+                                              month: "long",
+                                              year: "numeric",
+                                          })
+                                        : "En cours"}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-2 shrink-0">
+                            <Button variant="outline" size="sm">
+                                <Pencil className="h-3.5 w-3.5 mr-1.5" />
+                                Modifier
+                            </Button>
+                        </div>
                     </div>
 
-                    {/* Colonne droite — Infos business & contrat */}
-                    <div className="space-y-3">
+                    <Separator className="my-5" />
+
+                    {/* Info grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
+                        {client.email && (
+                            <InfoItem icon={Mail} label="Email" value={client.email} />
+                        )}
+                        {client.phone && (
+                            <InfoItem icon={Phone} label="Téléphone" value={client.phone} />
+                        )}
+                        {addressLine && (
+                            <InfoItem icon={MapPin} label="Adresse" value={addressLine} />
+                        )}
                         {client.siret && (
-                            <div>
-                                <p className="text-xs text-muted-foreground">SIRET</p>
-                                <p className="text-sm font-mono">{client.siret}</p>
-                            </div>
+                            <InfoItem icon={Hash} label="SIRET" value={client.siret} />
                         )}
                         {client.vatNumber && (
-                            <div>
-                                <p className="text-xs text-muted-foreground">N° TVA</p>
-                                <p className="text-sm font-mono">{client.vatNumber}</p>
-                            </div>
+                            <InfoItem icon={Receipt} label="N° TVA" value={client.vatNumber} />
                         )}
-                        {client.dailyRate && (
-                            <div>
-                                <p className="text-xs text-muted-foreground">TJM</p>
-                                <p className="text-sm font-semibold">{client.dailyRate.toLocaleString('fr-FR')} €</p>
-                            </div>
-                        )}
-                        {(client.startDate || client.endDate) && (
-                            <div className="flex gap-6">
-                                {client.startDate && (
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Date de début</p>
-                                        <p className="text-sm">{new Date(client.startDate).toLocaleDateString('fr-FR')}</p>
-                                    </div>
-                                )}
-                                {client.endDate && (
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Date de fin</p>
-                                        <p className="text-sm">{new Date(client.endDate).toLocaleDateString('fr-FR')}</p>
-                                    </div>
-                                )}
-                            </div>
+                        {dailyRate > 0 && (
+                            <InfoItem
+                                icon={Briefcase}
+                                label="TJM"
+                                value={`${fmtEur(dailyRate)} / jour`}
+                            />
                         )}
                     </div>
+                </CardContent>
+            </Card>
+
+            {/* ── KPI cards ──────────────────────────────────── */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <KpiCard
+                    label="Jours travaillés"
+                    value={fmtDays(totalDays)}
+                    sub={maxDays > 0 ? `sur ${fmtDays(maxDays)} alloués` : "Pas de plafond défini"}
+                />
+                <KpiCard
+                    label="CA théorique"
+                    value={dailyRate > 0 ? fmtEur(totalTheorique) : "—"}
+                    sub={budget > 0 ? `Budget contrat : ${fmtEur(budget)}` : undefined}
+                />
+                <KpiCard
+                    label="Encaissé"
+                    value={fmtEur(totalPaid)}
+                    sub={
+                        totalPending > 0
+                            ? `${fmtEur(totalPending)} en attente de paiement`
+                            : "Aucun montant en attente"
+                    }
+                />
+                <KpiCard
+                    label="Avancement"
+                    value={progress !== null ? `${Math.round(progress)} %` : "—"}
+                    sub={
+                        progress === null
+                            ? "Pas de plafond défini"
+                            : progress >= 100
+                            ? "Budget dépassé !"
+                            : progress >= 80
+                            ? "Attention au budget"
+                            : "Dans les limites du contrat"
+                    }
+                    warning={progress !== null && progress >= 80}
+                />
+            </div>
+
+            {/* ── Progress bar ────────────────────────────────── */}
+            {progressClamped !== null && (
+                <div className="space-y-2 px-0.5">
+                    <div className="flex justify-between items-baseline">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            Consommation du budget
+                        </span>
+                        <span className="text-xs tabular-nums text-muted-foreground">
+                            {fmtDays(totalDays)} / {fmtDays(maxDays)}
+                        </span>
+                    </div>
+                    <div
+                        className="h-2 rounded-full bg-muted overflow-hidden"
+                        role="progressbar"
+                        aria-valuenow={Math.round(progressClamped)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                    >
+                        <div
+                            className={`h-full rounded-full transition-all duration-500 ${progressBarColor}`}
+                            style={{ width: `${progressClamped}%` }}
+                        />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                        {totalDays > maxDays
+                            ? `Dépassement de ${fmtDays(totalDays - maxDays)}${dailyRate > 0 ? ` (${fmtEur((totalDays - maxDays) * dailyRate)})` : ""}`
+                            : totalDays === maxDays
+                            ? "Budget entièrement consommé"
+                            : `Reste ${fmtDays(maxDays - totalDays)} à consommer${dailyRate > 0 ? ` (${fmtEur((maxDays - totalDays) * dailyRate)})` : ""}`}
+                    </p>
                 </div>
-            </CardContent>
-        </Card>
+            )}
+        </div>
     );
 }
