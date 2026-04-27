@@ -15,6 +15,7 @@ model User {
   email         String         @unique
   emailVerified Boolean        @default(false)
   image         String?
+  role          String         @default("MEMBER")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @default(now()) @updatedAt
   accounts      Account[]
@@ -24,7 +25,6 @@ model User {
   @@map("user")
 }
 
-/// *
 ///  * ---------------- REGISTRATIONS ----------------
 model Registration {
   id           String   @id @default(cuid())
@@ -40,7 +40,6 @@ model Registration {
   @@map("registration")
 }
 
-/// *
 ///  * ---------------- SESSIONS & ACCOUNTS ----------------
 model Session {
   id        String   @id @default(cuid())
@@ -107,7 +106,7 @@ model Clients {
   startDate DateTime?
   endDate   DateTime?
 
-  activities        Activity[]
+  activities  Activity[]
   inviteLinks InviteLink[]
 
   createdAt DateTime  @default(now())
@@ -174,8 +173,8 @@ model Invoice {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  activity    Activity?    @relation(fields: [craId], references: [id])
-  client Clients @relation(fields: [clientId], references: [id])
+  activity Activity? @relation(fields: [craId], references: [id])
+  client   Clients   @relation(fields: [clientId], references: [id])
 
   @@index([clientId, issuedAt])
 }

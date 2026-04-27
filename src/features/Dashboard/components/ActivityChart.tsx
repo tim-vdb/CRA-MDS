@@ -1,100 +1,153 @@
 "use client"
 
 import { useEffect, useTransition, useState, useMemo } from "react"
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { ChevronLeft, ChevronRight, CalendarDays, TrendingUp, Users } from "lucide-react"
+import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import { ActivityChartPoint, getActivitiesForChart } from "../server/chart.action"
 
+const MONTHS_FR = [
+  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+]
+
 const chartConfig = {
-  daysWorked: {
-    label: "Jours travaillés",
-    color: "hsl(var(--chart-1))",
-  },
+  daysWorked: { label: "Jours travaillés", color: "hsl(var(--chart-1))" },
 } satisfies ChartConfig
 
-const MONTH_LABELS = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"]
-
 interface ActivityChartProps {
-  year?: number
   clientId?: string
 }
 
-export function ActivityChart({ year = new Date().getFullYear(), clientId }: ActivityChartProps) {
+function getDaysInMonth(month: number, year: number) {
+  return new Date(year, month, 0).getDate()
+}
+
+export function ActivityChart({ clientId }: ActivityChartProps) {
+  const today = new Date()
+  const [month, setMonth] = useState(today.getMonth() + 1)
+  const [year, setYear] = useState(today.getFullYear())
   const [data, setData] = useState<ActivityChartPoint[]>([])
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     startTransition(async () => {
-      const result = await getActivitiesForChart(year, clientId)
+      const result = await getActivitiesForChart(month, year, clientId)
       setData(result)
     })
-  }, [year, clientId])
+  }, [month, year, clientId])
+
+  const isCurrentMonth = month === today.getMonth() + 1 && year === today.getFullYear()
+
+  function prevMonth() {
+    if (month === 1) { setMonth(12); setYear((y) => y - 1) }
+    else setMonth((m) => m - 1)
+  }
+
+  function nextMonth() {
+    if (isCurrentMonth) return
+    if (month === 12) { setMonth(1); setYear((y) => y + 1) }
+    else setMonth((m) => m + 1)
+  }
 
   const chartData = useMemo(() => {
-    const byDate = new Map<string, number>()
+    const byDay = new Map<number, number>()
     for (const point of data) {
-      const d = new Date(point.date)
-      const label = `${String(d.getUTCDate()).padStart(2, "0")}/${MONTH_LABELS[d.getUTCMonth()]}`
-      byDate.set(label, (byDate.get(label) ?? 0) + point.daysWorked)
+      const day = new Date(point.date).getDate()
+      byDay.set(day, (byDay.get(day) ?? 0) + point.daysWorked)
     }
-    return Array.from(byDate.entries()).map(([date, daysWorked]) => ({ date, daysWorked }))
-  }, [data])
+    return Array.from({ length: getDaysInMonth(month, year) }, (_, i) => ({
+      day: i + 1,
+      daysWorked: byDay.get(i + 1) ?? 0,
+    }))
+  }, [data, month, year])
 
   const totalDays = useMemo(() => data.reduce((sum, d) => sum + d.daysWorked, 0), [data])
   const activeClients = useMemo(() => new Set(data.map((d) => d.clientId)).size, [data])
-  const avgPerEntry = data.length > 0 ? (totalDays / data.length).toFixed(2) : "0"
+  const activeDays = useMemo(() => new Set(data.map((d) => new Date(d.date).getDate())).size, [data])
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base font-medium">
-          Jours travaillés — {year}
-        </CardTitle>
+    <Card className="overflow-hidden">
+      <CardHeader className="pb-4 border-b bg-muted/20">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h3 className="text-base font-semibold">Activité mensuelle</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Jours travaillés par jour calendaire</p>
+          </div>
+          <div className="flex items-center gap-1 rounded-lg border bg-background px-1 py-0.5">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth} disabled={isPending}>
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </Button>
+            <span className="w-36 text-center text-sm font-medium tabular-nums">
+              {MONTHS_FR[month - 1]} {year}
+            </span>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth} disabled={isPending || isCurrentMonth}>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
+
+      <CardContent className="pt-5">
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="bg-muted rounded-lg p-3">
-            <p className="text-xs text-muted-foreground mb-1">Total jours</p>
-            <p className="text-xl font-medium">{totalDays}j</p>
+          <div className="flex items-center gap-3 rounded-xl border p-3">
+            <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+              <CalendarDays className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground truncate">Total jours</p>
+              <p className="text-xl font-semibold">{totalDays}j</p>
+            </div>
           </div>
-          <div className="bg-muted rounded-lg p-3">
-            <p className="text-xs text-muted-foreground mb-1">Moy. par entrée</p>
-            <p className="text-xl font-medium">{avgPerEntry}j</p>
+          <div className="flex items-center gap-3 rounded-xl border p-3">
+            <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+              <TrendingUp className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground truncate">Jours actifs</p>
+              <p className="text-xl font-semibold">{activeDays}</p>
+            </div>
           </div>
-          <div className="bg-muted rounded-lg p-3">
-            <p className="text-xs text-muted-foreground mb-1">Clients actifs</p>
-            <p className="text-xl font-medium">{activeClients}</p>
+          <div className="flex items-center gap-3 rounded-xl border p-3">
+            <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+              <Users className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs text-muted-foreground truncate">Clients actifs</p>
+              <p className="text-xl font-semibold">{activeClients}</p>
+            </div>
           </div>
         </div>
 
         {isPending ? (
-          <div className="h-64 flex items-center justify-center text-sm text-muted-foreground">
-            Chargement…
+          <div className="h-52 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="text-xs">Chargement…</span>
           </div>
-        ) : chartData.length === 0 ? (
-          <div className="h-64 flex items-center justify-center text-sm text-muted-foreground border border-dashed rounded-lg">
-            Aucune donnée pour cette période
+        ) : totalDays === 0 ? (
+          <div className="h-52 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed text-muted-foreground">
+            <CalendarDays className="h-8 w-8 opacity-30" />
+            <p className="text-sm">Aucune activité ce mois-ci</p>
           </div>
         ) : (
-          <ChartContainer config={chartConfig} className="h-64 w-full">
-            <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-              <CartesianGrid vertical={false} />
+          <ChartContainer config={chartConfig} className="h-52 w-full">
+            <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barCategoryGap="35%">
+              <defs>
+                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-daysWorked)" stopOpacity={0.95} />
+                  <stop offset="100%" stopColor="var(--color-daysWorked)" stopOpacity={0.5} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid vertical={false} strokeDasharray="3 3" className="stroke-border" />
               <XAxis
-                dataKey="date"
+                dataKey="day"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
                 tick={{ fontSize: 11 }}
-                angle={-45}
-                textAnchor="end"
-                height={50}
-                interval={0}
+                interval={4}
               />
               <YAxis
                 tickLine={false}
@@ -103,20 +156,38 @@ export function ActivityChart({ year = new Date().getFullYear(), clientId }: Act
                 tick={{ fontSize: 11 }}
                 tickFormatter={(v) => `${v}j`}
                 domain={[0, "auto"]}
+                allowDecimals={false}
               />
               <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    formatter={(value) => [`${value}j`, "Jours travaillés"]}
+                cursor={{ fill: "hsl(var(--muted))", radius: 4 }}
+                content={({ active, payload }) => {
+                  if (!active || !payload?.length) return null
+                  const entry = payload[0]
+                  const dayNum = entry?.payload?.day as number
+                  const val = Number(entry?.value ?? 0)
+                  return (
+                    <div className="rounded-lg border bg-popover px-3 py-2 shadow-lg text-xs">
+                      <p className="font-semibold mb-1">
+                        {String(dayNum).padStart(2, "0")} {MONTHS_FR[month - 1]} {year}
+                      </p>
+                      <p className="text-muted-foreground">
+                        {val === 0
+                          ? "Aucune activité"
+                          : `${val} jour${val > 1 ? "s" : ""} travaillé${val > 1 ? "s" : ""}`}
+                      </p>
+                    </div>
+                  )
+                }}
+              />
+              <Bar dataKey="daysWorked" radius={[4, 4, 2, 2]} maxBarSize={20}>
+                {chartData.map((entry, i) => (
+                  <Cell
+                    key={i}
+                    fill={entry.daysWorked > 0 ? "url(#barGradient)" : "hsl(var(--muted))"}
+                    fillOpacity={entry.daysWorked > 0 ? 1 : 0.5}
                   />
-                }
-              />
-              <Bar
-                dataKey="daysWorked"
-                fill="var(--color-daysWorked)"
-                radius={[4, 4, 0, 0]}
-                maxBarSize={40}
-              />
+                ))}
+              </Bar>
             </BarChart>
           </ChartContainer>
         )}
