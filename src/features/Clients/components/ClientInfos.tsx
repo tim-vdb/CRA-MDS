@@ -1,6 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { Activity, Clients, Invoice } from "@/generated/prisma_client";
 import {
@@ -11,9 +10,10 @@ import {
     Hash,
     Receipt,
     CalendarRange,
-    Pencil,
     Briefcase,
 } from "lucide-react";
+import { cn } from "@/utils/utils";
+import EditClientModal from "./EditClientModal";
 
 type ActivityWithInvoices = Activity & { invoices: Invoice[] };
 export type ClientWithRelations = Clients & {
@@ -65,9 +65,8 @@ function KpiCard({
                     {label}
                 </p>
                 <p
-                    className={`text-2xl font-bold mt-1.5 tabular-nums leading-none ${
-                        warning ? "text-orange-600 dark:text-orange-400" : ""
-                    }`}
+                    className={cn("text-2xl font-bold mt-1.5 tabular-nums leading-none", warning ? "text-orange-600 dark:text-orange-400" : ""
+                    )}
                 >
                     {value}
                 </p>
@@ -105,19 +104,19 @@ export default function ClientInfos({ client }: ClientInfosProps) {
 
     const fmtEur = (v: number) =>
         v.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) +
-        " €";
+        " €";
     const fmtDays = (v: number) =>
         v.toLocaleString("fr-FR", { minimumFractionDigits: 0, maximumFractionDigits: 1 }) +
-        " j";
+        " j";
 
     const progressBarColor =
         progress === null
             ? ""
             : progress >= 100
-            ? "bg-red-500"
-            : progress >= 80
-            ? "bg-orange-500"
-            : "bg-primary";
+                ? "bg-red-500"
+                : progress >= 80
+                    ? "bg-orange-500"
+                    : "bg-primary";
 
     const addressLine = [
         client.address,
@@ -168,18 +167,18 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                                     <CalendarRange className="h-3.5 w-3.5 shrink-0" />
                                     {client.startDate
                                         ? new Date(client.startDate).toLocaleDateString("fr-FR", {
-                                              day: "numeric",
-                                              month: "long",
-                                              year: "numeric",
-                                          })
+                                            day: "numeric",
+                                            month: "long",
+                                            year: "numeric",
+                                        })
                                         : "?"}
                                     &nbsp;→&nbsp;
                                     {client.endDate
                                         ? new Date(client.endDate).toLocaleDateString("fr-FR", {
-                                              day: "numeric",
-                                              month: "long",
-                                              year: "numeric",
-                                          })
+                                            day: "numeric",
+                                            month: "long",
+                                            year: "numeric",
+                                        })
                                         : "En cours"}
                                 </p>
                             )}
@@ -187,10 +186,7 @@ export default function ClientInfos({ client }: ClientInfosProps) {
 
                         {/* Actions */}
                         <div className="flex gap-2 shrink-0">
-                            <Button variant="outline" size="sm">
-                                <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                                Modifier
-                            </Button>
+                            <EditClientModal client={client} />
                         </div>
                     </div>
 
@@ -252,10 +248,10 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                         progress === null
                             ? "Pas de plafond défini"
                             : progress >= 100
-                            ? "Budget dépassé !"
-                            : progress >= 80
-                            ? "Attention au budget"
-                            : "Dans les limites du contrat"
+                                ? "Budget dépassé !"
+                                : progress >= 80
+                                    ? "Attention au budget"
+                                    : "Dans les limites du contrat"
                     }
                     warning={progress !== null && progress >= 80}
                 />
@@ -288,8 +284,8 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                         {totalDays > maxDays
                             ? `Dépassement de ${fmtDays(totalDays - maxDays)}${dailyRate > 0 ? ` (${fmtEur((totalDays - maxDays) * dailyRate)})` : ""}`
                             : totalDays === maxDays
-                            ? "Budget entièrement consommé"
-                            : `Reste ${fmtDays(maxDays - totalDays)} à consommer${dailyRate > 0 ? ` (${fmtEur((maxDays - totalDays) * dailyRate)})` : ""}`}
+                                ? "Budget entièrement consommé"
+                                : `Reste ${fmtDays(maxDays - totalDays)} à consommer${dailyRate > 0 ? ` (${fmtEur((maxDays - totalDays) * dailyRate)})` : ""}`}
                     </p>
                 </div>
             )}
