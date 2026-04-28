@@ -21,6 +21,7 @@ model User {
   accounts      Account[]
   registrations Registration[]
   sessions      Session[]
+  clients       Clients[]
 
   @@map("user")
 }
@@ -111,7 +112,10 @@ model Clients {
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
-  invoices  Invoice[]
+
+  
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([name])
   @@index([company])
@@ -138,8 +142,7 @@ model Activity {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  invoices Invoice[]
-
+  @@unique([clientId, date])
   @@index([clientId])
   @@index([month, year])
 }
@@ -157,26 +160,6 @@ model InviteLink {
   @@index([token])
   @@index([clientId])
   @@map("client_invite")
-}
-
-model Invoice {
-  id        String        @id @default(cuid())
-  craId     String
-  clientId  String
-  amountHT  Float
-  amountTTC Float
-  tvaRate   Float         @default(20.0)
-  tvaAmount Float
-  status    InvoiceStatus
-  number    String        @unique // ex: FACT-2026-001
-  issuedAt  DateTime?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  activity Activity? @relation(fields: [craId], references: [id])
-  client   Clients   @relation(fields: [clientId], references: [id])
-
-  @@index([clientId, issuedAt])
 }
 
 enum InvoiceStatus {
