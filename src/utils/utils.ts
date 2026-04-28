@@ -14,3 +14,13 @@ export function formatDate(date: Date) {
     minute: '2-digit',
   });
 }
+
+export function fmtEur(value: number, signed = false) {
+  const formatted =
+    value.toLocaleString("fr-FR", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }) + " €";
+  return signed && value > 0 ? `+${formatted}` : formatted;
+}
+

@@ -21,6 +21,7 @@ model User {
   accounts      Account[]
   registrations Registration[]
   sessions      Session[]
+  clients       Clients[]
 
   @@map("user")
 }
@@ -105,9 +106,11 @@ model Clients {
   isActive  Boolean   @default(true)
   startDate DateTime?
   endDate   DateTime?
+  userId    String?
 
   activities  Activity[]
   inviteLinks InviteLink[]
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
@@ -140,6 +143,7 @@ model Activity {
 
   invoices Invoice[]
 
+  @@unique([clientId, date])
   @@index([clientId])
   @@index([month, year])
 }
@@ -161,8 +165,8 @@ model InviteLink {
 
 model Invoice {
   id        String        @id @default(cuid())
-  craId     String
-  clientId  String
+  craId     String?
+  clientId  String?
   amountHT  Float
   amountTTC Float
   tvaRate   Float         @default(20.0)
@@ -173,8 +177,8 @@ model Invoice {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  activity Activity? @relation(fields: [craId], references: [id])
-  client   Clients   @relation(fields: [clientId], references: [id])
+  activity Activity? @relation(fields: [craId], references: [id], onDelete: SetNull)
+  client   Clients?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
 
   @@index([clientId, issuedAt])
 }

@@ -7,8 +7,22 @@ import type { User } from "@/generated/prisma_client"
 import Header from "@/components/Global/Header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/features/SideBar/app-sidebar"
+import { usePathname } from "next/navigation"
 
 export function Shell({ user, children }: { user: User | null; children: React.ReactNode }) {
+    const pathname = usePathname()
+    const isAuthPage = pathname === "/login" || pathname === "/register"
+
+    if (isAuthPage) {
+        return (
+            <UserProvider user={user}>
+                <div className="bg-[url('/images/bg2.jpg')] bg-cover bg-center h-screen flex items-center justify-center">
+                    {children}
+                </div>
+            </UserProvider>
+        )
+    }
+
     return (
         <UserProvider user={user}>
             <div className="bg-[url('/images/bg2.jpg')] bg-cover bg-center h-screen overflow-hidden">
