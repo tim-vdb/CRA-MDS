@@ -5,14 +5,12 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarHeader,
   SidebarTrigger,
   useSidebar
 } from "@/components/ui/sidebar"
 import * as React from "react"
 import { NavMain } from "./nav-main"
 
-import { TeamSwitcher } from "./team-switcher"
 import { ToggleDarkMode } from "../DarkMode/ToggleDarkMode"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -21,9 +19,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" variant="floating" {...props}>
-      <SidebarHeader>
-        <TeamSwitcher />
-      </SidebarHeader>
       <SidebarContent>
         <NavMain />
       </SidebarContent>
@@ -36,7 +31,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div onClick={toggleSidebar} className="flex w-full h-8 overflow-hidden rounded-md font-medium bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer">
           <SidebarTrigger onClick={(e) => { e.preventDefault() }} className="shrink-0 h-full w-8 cursor-pointer hover:bg-transparent! hover:text-inherit" />
           <span className="items_sidebar flex items-center truncate">
-            Réduire le menu
+            Collapse
           </span>
         </div>
       </SidebarFooter>

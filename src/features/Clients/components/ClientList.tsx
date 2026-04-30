@@ -15,7 +15,7 @@ export default function ClientList({ clients }: { clients: any[] }) {
         >
           <p className="font-medium">{client.name}</p>
           <p className="text-sm text-muted-foreground">
-            {client.company || "Pas de société"}
+            {client.company || "No company"}
           </p>
         </div>
       ))}

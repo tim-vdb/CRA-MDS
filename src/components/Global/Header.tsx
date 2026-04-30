@@ -13,13 +13,13 @@ import {
 import React from "react"
 
 const ROUTE_LABELS: Record<string, string> = {
-  "": "Tableau de bord",
+  "": "dashboard",
   clients: "Clients",
-  dashboard: "Tableau de bord",
-  account: "Mon compte",
+  dashboard: "dashboard",
+  account: "My account",
   admin: "Administration",
-  profile: "Profil",
-  settings: "Paramètres",
+  profile: "Profile",
+  settings: "Settings",
 }
 
 function getLabel(segment: string, index: number, segments: string[]): string {
@@ -31,11 +31,11 @@ function getBreadcrumbs(pathname: string) {
   const segments = pathname.split("/").filter(Boolean)
 
   if (segments.length === 0) {
-    return [{ label: "Tableau de bord", href: undefined }]
+    return [{ label: "Dashboard", href: undefined }]
   }
 
   const crumbs: { label: string; href?: string }[] = [
-    { label: "Tableau de bord", href: "/" },
+    { label: "Dashboard", href: "/" },
   ]
 
   let currentPath = ""
