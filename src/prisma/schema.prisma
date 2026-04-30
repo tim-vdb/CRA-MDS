@@ -90,7 +90,7 @@ model Clients {
   id   String @id @default(cuid())
   name String
 
-  email      String? @unique
+  email      String?
   phone      String?
   company    String?
   address    String?
@@ -98,7 +98,7 @@ model Clients {
   postalCode String?
   country    String? @default("France")
 
-  siret     String? @unique
+  siret     String?
   vatNumber String?
 
   dailyRate Float? // TJM (Taux Journalier Moyen)
@@ -106,18 +106,21 @@ model Clients {
   isActive  Boolean   @default(true)
   startDate DateTime?
   endDate   DateTime?
-  userId    String?
+  userId    String
 
   activities  Activity[]
   inviteLinks InviteLink[]
-  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
   invoices  Invoice[]
 
+  @@unique([userId, siret])
+  @@unique([userId, email])
   @@index([name])
   @@index([company])
+  @@index([userId])
 }
 
 model Activity {
