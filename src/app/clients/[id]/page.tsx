@@ -2,13 +2,20 @@ import { Card } from "@/components/ui/card";
 import ClientInfos from "@/features/Clients/components/ClientInfos";
 import ClientTabs from "@/features/Clients/components/ClientTabs";
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
+import { getUser } from "@/lib/auth-session";
+import { notFound, redirect } from "next/navigation";
 
 export default async function ClientPage({
     params,
 }: {
     params: Promise<{ id: string }>;
 }) {
+    const user = await getUser();
+
+    if (!user) {
+        redirect("/login");
+    }
+
     const { id } = await params;
 
     const client = await prisma.clients.findUnique({
@@ -19,8 +26,11 @@ export default async function ClientPage({
         },
     });
 
+    if (!client || client.userId !== user.id) {
+        return notFound();
+    }
+
     const dailyRate = client?.dailyRate ?? 0;
-    if (!client) return notFound();
 
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-6">
