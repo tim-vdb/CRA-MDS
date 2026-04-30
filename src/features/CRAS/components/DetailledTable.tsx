@@ -2,7 +2,6 @@
 
 import dayjs from "dayjs";
 import "dayjs/locale/fr";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -128,14 +127,6 @@ export default function DetailledTable({
     }
 
     // Handlers
-    const handleDaysChange = (craId: string, value: string) => {
-        setEditedCras((prev) => ({
-            ...prev,
-            [craId]: { daysWorked: value },
-        }));
-        setIsModified(true);
-    };
-
     const handleSave = async () => {
         setIsSaving(true);
         try {
@@ -147,7 +138,7 @@ export default function DetailledTable({
                 toast.error(result.message);
             }
         } catch (error) {
-            toast.error("Une erreur est survenue lors de la sauvegarde");
+            toast.error("An error occurred while saving");
             console.error(error);
         } finally {
             setIsSaving(false);
@@ -219,11 +210,11 @@ export default function DetailledTable({
         <Card className="overflow-hidden">
             <div className="border-b bg-muted/30 px-4 py-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    {/* Infos TJ & Plafond */}
+                    {/* Infos Daily rate & Cap */}
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                         <div className="flex items-center gap-2">
                             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                                TJ
+                                Daily rate
                             </span>
                             <span className="font-semibold tabular-nums">
                                 {dailyRate > 0 ? fmtEur(dailyRate) : "—"}
@@ -234,7 +225,7 @@ export default function DetailledTable({
                                 <span className="text-muted-foreground/30">|</span>
                                 <div className="flex items-center gap-2">
                                     <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                                        Plafond
+                                        Cap
                                     </span>
                                     <span className="font-semibold tabular-nums">
                                         {fmtDays(maxDays)}
@@ -257,7 +248,7 @@ export default function DetailledTable({
                                 disabled={isSaving}
                             >
                                 <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
-                                Annuler
+                                Cancel
                             </Button>
                             <Button
                                 size="sm"
@@ -265,7 +256,7 @@ export default function DetailledTable({
                                 disabled={isSaving}
                             >
                                 <Save className="h-3.5 w-3.5 mr-1.5" />
-                                {isSaving ? "Enregistrement..." : "Enregistrer"}
+                                {isSaving ? "Saving..." : "Save"}
                             </Button>
                         </div>
                     )}
@@ -275,45 +266,43 @@ export default function DetailledTable({
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="w-40">Période</TableHead>
-                        <TableHead className="text-right w-32">
-                            Jours <span className="text-[11px] text-muted-foreground font-normal">(éditable)</span>
-                        </TableHead>
-                        <TableHead className="text-right">Facturé théorique</TableHead>
-                        <TableHead className="text-right">Facturé effectif</TableHead>
-                        <TableHead className="text-right">Max théorique</TableHead>
+                        <TableHead className="w-40">Period</TableHead>
+                        <TableHead className="text-right w-32">Days</TableHead>
+                        <TableHead className="text-right">Theoretical billed</TableHead>
+                        <TableHead className="text-right">Actual billed</TableHead>
+                        <TableHead className="text-right">Theoretical max</TableHead>
                         <TableHead className="text-right">
                             <span className="inline-flex items-center justify-end gap-1.5">
-                                Écart théorique / max
+                                Theoretical vs max gap
                                 <HeaderInfo>
                                     <p className="font-semibold text-[11px] uppercase tracking-wide opacity-70">
-                                        Comparaison vs plafond contrat
+                                        Comparison vs contract cap
                                     </p>
                                     <p>
-                                        <span className="text-orange-300 font-semibold">Positif</span> :
-                                        trop de jours réalisés, dépasse le budget alloué.
+                                        <span className="text-orange-300 font-semibold">Positive</span> :
+                                        too many days worked, exceeds the allocated budget.
                                     </p>
                                     <p>
-                                        <span className="text-red-300 font-semibold">Négatif</span> :
-                                        jours restants pour atteindre le plafond.
+                                        <span className="text-red-300 font-semibold">Negative</span> :
+                                        remaining days to reach the cap.
                                     </p>
                                 </HeaderInfo>
                             </span>
                         </TableHead>
                         <TableHead className="text-right">
                             <span className="inline-flex items-center justify-end gap-1.5">
-                                Écart effectif / théorique
+                                Actual vs theoretical gap
                                 <HeaderInfo>
                                     <p className="font-semibold text-[11px] uppercase tracking-wide opacity-70">
-                                        Comparaison facturé vs travail réalisé
+                                        Comparison billed vs work done
                                     </p>
                                     <p>
-                                        <span className="text-orange-300 font-semibold">Positif</span> :
-                                        avance de facturation.
+                                        <span className="text-orange-300 font-semibold">Positive</span> :
+                                        billing advance.
                                     </p>
                                     <p>
-                                        <span className="text-red-300 font-semibold">Négatif</span> :
-                                        facturation en retard.
+                                        <span className="text-red-300 font-semibold">Negative</span> :
+                                        billing behind.
                                     </p>
                                 </HeaderInfo>
                             </span>
@@ -326,9 +315,9 @@ export default function DetailledTable({
                         <TableRow>
                             <TableCell colSpan={7} className="text-center text-muted-foreground py-14">
                                 <FileText className="h-8 w-8 mx-auto mb-2.5 opacity-25" />
-                                <p className="text-sm font-medium">Aucun compte rendu</p>
+                                <p className="text-sm font-medium">No activity reports</p>
                                 <p className="text-xs mt-0.5 opacity-70">
-                                    Les CRA apparaîtront ici
+                                    Activity reports will appear here
                                 </p>
                             </TableCell>
                         </TableRow>
@@ -347,10 +336,8 @@ export default function DetailledTable({
                                             <span>{month.monthYear}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-right p-0">
-                                        <div className="font-mono text-sm px-3 py-2 text-right bg-muted/20 font-semibold">
-                                            {fmtDays(month.totalDaysInMonth)}
-                                        </div>
+                                    <TableCell className="text-right tabular-nums">
+                                        {fmtDays(month.totalDaysInMonth)}
                                     </TableCell>
                                     <TableCell className="text-right tabular-nums">
                                         {dailyRate > 0 ? fmtEur(factureTheorique) : "—"}

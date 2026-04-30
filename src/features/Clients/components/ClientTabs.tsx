@@ -27,17 +27,8 @@ export default function ClientTabs({ cras, client, dailyRate }: ClientTabsProps)
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                        <Receipt className="h-3.5 w-3.5 mr-1.5" />
-                        Déclarer Facture
-                    </Button>
-                </div>
-            </div>
-
             <div className="space-y-4">
-                <h3 className="text-sm font-semibold">Détail des CRA</h3>
+                <h3 className="text-sm font-semibold">Activity report detail</h3>
                 <DetailledTable
                     cras={cras}
                     dailyRate={dailyRate}
@@ -49,7 +40,7 @@ export default function ClientTabs({ cras, client, dailyRate }: ClientTabsProps)
             </div>
 
             <div className="space-y-4">
-                <h3 className="text-sm font-semibold">Résumé Financier</h3>
+                <h3 className="text-sm font-semibold">Financial summary</h3>
                 <SummaryTable
                     cras={cras}
                     dailyRate={dailyRate}

@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const CreateClientSchema = z.object({
-  name: z.string().min(1, "Nom requis"),
-  email: z.string().email("Email invalide").optional().or(z.literal("")),
+  name: z.string().min(1, "Name required"),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
   phone: z.string().optional(),
   company: z.string().optional(),
   address: z.string().optional(),
@@ -17,8 +17,8 @@ export const CreateClientSchema = z.object({
 export type CreateClientInput = z.infer<typeof CreateClientSchema>;
 
 export const UpdateClientSchema = z.object({
-  name: z.string().min(1, "Nom requis"),
-  email: z.string().email("Email invalide").optional().or(z.literal("")),
+  name: z.string().min(1, "Name required"),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
   phone: z.string().optional().or(z.literal("")),
   company: z.string().optional().or(z.literal("")),
   address: z.string().optional().or(z.literal("")),
@@ -27,8 +27,8 @@ export const UpdateClientSchema = z.object({
   country: z.string().optional().or(z.literal("")),
   siret: z.string().optional().or(z.literal("")),
   vatNumber: z.string().optional().or(z.literal("")),
-  dailyRate: z.number().nonnegative("Doit être positif").nullable().optional(),
-  maxDays: z.number().nonnegative("Doit être positif").nullable().optional(),
+  dailyRate: z.number().nonnegative("Must be positive").nullable().optional(),
+  maxDays: z.number().nonnegative("Must be positive").nullable().optional(),
   isActive: z.boolean(),
   startDate: z.string().optional().or(z.literal("")),
   endDate: z.string().optional().or(z.literal("")),

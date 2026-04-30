@@ -10,12 +10,12 @@ import { ActivityChartPoint, getActivitiesForChart } from "../server/chart.actio
 import { useActivityRefresh } from "../context/ActivityRefreshContext"
 
 const MONTHS_FR = [
-  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ]
 
 const chartConfig = {
-  daysWorked: { label: "Jours travaillés", color: "hsl(var(--chart-1))" },
+  daysWorked: { label: "Days worked", color: "hsl(var(--chart-1))" },
 } satisfies ChartConfig
 
 interface ActivityChartProps {
@@ -75,8 +75,8 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
       <CardHeader className="pb-4 border-b bg-muted/20">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-base font-semibold">Activité mensuelle</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">Jours travaillés par jour calendaire</p>
+            <h3 className="text-base font-semibold">Monthly activity</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">Days worked per calendar day</p>
           </div>
           <div className="flex items-center gap-1 rounded-lg border bg-background px-1 py-0.5">
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth} disabled={isPending}>
@@ -99,7 +99,7 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
               <CalendarDays className="h-4 w-4 text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">Total jours</p>
+              <p className="text-xs text-muted-foreground truncate">Total days</p>
               <p className="text-xl font-semibold">{totalDays}j</p>
             </div>
           </div>
@@ -108,7 +108,7 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
               <TrendingUp className="h-4 w-4 text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">Jours actifs</p>
+              <p className="text-xs text-muted-foreground truncate">Active days</p>
               <p className="text-xl font-semibold">{activeDays}</p>
             </div>
           </div>
@@ -117,7 +117,7 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
               <Users className="h-4 w-4 text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">Clients actifs</p>
+              <p className="text-xs text-muted-foreground truncate">Active clients</p>
               <p className="text-xl font-semibold">{activeClients}</p>
             </div>
           </div>
@@ -126,12 +126,12 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
         {isPending ? (
           <div className="h-52 flex flex-col items-center justify-center gap-3 text-muted-foreground">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <span className="text-xs">Chargement…</span>
+            <span className="text-xs">Loading…</span>
           </div>
         ) : totalDays === 0 ? (
           <div className="h-52 flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed text-muted-foreground">
             <CalendarDays className="h-8 w-8 opacity-30" />
-            <p className="text-sm">Aucune activité ce mois-ci</p>
+            <p className="text-sm">No activity this month</p>
           </div>
         ) : (
           <ChartContainer config={chartConfig} className="h-52 w-full">
@@ -174,8 +174,8 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
                       </p>
                       <p className="text-muted-foreground">
                         {val === 0
-                          ? "Aucune activité"
-                          : `${val} jour${val > 1 ? "s" : ""} travaillé${val > 1 ? "s" : ""}`}
+                          ? "No activity"
+                          : `${val} day${val > 1 ? "s" : ""} worked`}
                       </p>
                     </div>
                   )
