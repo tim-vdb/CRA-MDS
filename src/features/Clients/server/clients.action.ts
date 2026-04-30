@@ -28,13 +28,37 @@ export async function createClient(formData: FormData) {
   };
 
   const isActive = formData.get("isActive") === "on";
+  const siret = getString("siret");
+  const email = getString("email");
+
+  // Vérifier si l'email existe déjà
+  if (email) {
+    const existingEmail = await prisma.clients.findFirst({
+      where: { email },
+    });
+
+    if (existingEmail) {
+      throw new Error("EMAIL_ALREADY_EXISTS");
+    }
+  }
+
+  // Vérifier si le SIRET existe déjà
+  if (siret) {
+    const existingSiret = await prisma.clients.findFirst({
+      where: { siret },
+    });
+
+    if (existingSiret) {
+      throw new Error("SIRET_ALREADY_EXISTS");
+    }
+  }
 
   await prisma.clients.create({
     data: {
       name: getString("name")!,
       userId: user.id,
 
-      email: getString("email"),
+      email,
       phone: getString("phone"),
       company: getString("company"),
       address: getString("address"),
@@ -42,7 +66,7 @@ export async function createClient(formData: FormData) {
       postalCode: getString("postalCode"),
       country: getString("country") || "France",
 
-      siret: getString("siret"),
+      siret,
       vatNumber: getString("vatNumber"),
 
       dailyRate: getFloat("dailyRate"),
