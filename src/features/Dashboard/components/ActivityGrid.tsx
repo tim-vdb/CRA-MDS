@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/utils/utils";
 import { getActivities, upsertActivity } from "../server/activity";
+import { useActivityRefresh } from "../context/ActivityRefreshContext";
 
 type ActivityWithClient = Awaited<ReturnType<typeof getActivities>>[number];
 
@@ -85,6 +86,7 @@ const PAGE_SIZE = 10;
 
 export default function ActivityGrid({ initialActivities, initialMonth, initialYear }: Props) {
   const today = new Date();
+  const { triggerRefresh } = useActivityRefresh();
 
   const [activities, setActivities] = useState<ActivityWithClient[]>(initialActivities);
   const [month, setMonth] = useState(initialMonth);
@@ -137,15 +139,17 @@ export default function ActivityGrid({ initialActivities, initialMonth, initialY
   }
 
   async function handleCellSave(clientId: string, day: number, value: string) {
-  const parsed = parseFloat(value);
+  const trimmedValue = value.trim();
+  const parsed = trimmedValue === "" ? 0 : parseFloat(trimmedValue);
   if (isNaN(parsed)) return;
 
   const date = new Date(year, month - 1, day);
   await upsertActivity(clientId, date, parsed);
 
-  // Rafraîchir les données localement
   const fresh = await getActivities(month, year);
   setActivities(fresh);
+  
+  triggerRefresh();
 }
 
   function getPageNumbers(): (number | "...")[] {
@@ -161,7 +165,7 @@ export default function ActivityGrid({ initialActivities, initialMonth, initialY
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 font-sans">
+    <div className="bg-gray-50 p-6 font-sans">
       <div className="max-w-full mx-auto space-y-4">
 
         {/* Header */}

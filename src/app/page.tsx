@@ -1,6 +1,7 @@
 import { ActivityChart } from "@/features/Dashboard/components/ActivityChart"
 import ActivityGrid from "@/features/Dashboard/components/ActivityGrid"
-import { getActivities } from "@/features/Dashboard/server/activity";
+import { getActivities } from "@/features/Dashboard/server/activity"
+import { ActivityRefreshProvider } from "@/features/Dashboard/context/ActivityRefreshContext";
 
 export default async function HomePage() {
   const today = new Date();
@@ -13,14 +14,16 @@ export default async function HomePage() {
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Comptes Rendus d'Activité</h1>
       </div>
-      <div className="space-y-6">
-        <ActivityChart />
-        <ActivityGrid
-      initialActivities={activities}
-      initialMonth={month}
-      initialYear={year}
-    />
-      </div>
+      <ActivityRefreshProvider>
+        <div className="space-y-6">
+          <ActivityGrid
+        initialActivities={activities}
+        initialMonth={month}
+        initialYear={year}
+      />
+          <ActivityChart />
+        </div>
+      </ActivityRefreshProvider>
     </div>
   )
 }
