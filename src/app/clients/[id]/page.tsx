@@ -1,9 +1,8 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import { prisma } from "@/lib/prisma";
+import { Card } from "@/components/ui/card";
 import ClientInfos from "@/features/Clients/components/ClientInfos";
 import ClientTabs from "@/features/Clients/components/ClientTabs";
+import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
 
 export default async function ClientPage({
     params,
@@ -20,28 +19,70 @@ export default async function ClientPage({
         },
     });
 
+    const dailyRate = client?.dailyRate ?? 0;
     if (!client) return notFound();
 
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-6">
-            {/* Breadcrumb */}
-            <nav className="flex items-center gap-1.5 text-sm" aria-label="Fil d'Ariane">
-                <Link
-                    href="/clients"
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                    Clients
-                </Link>
-                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <span className="font-medium truncate">{client.name}</span>
-            </nav>
-
             <ClientInfos client={client} />
+
             <ClientTabs
                 cras={client.activities}
-                invoices={client.invoices}
                 client={client}
+                dailyRate={dailyRate}
             />
+
+            {/* Légende des écarts */}
+            {client.activities.length > 0 && dailyRate > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <Card className="p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                            Écart théorique / max
+                        </p>
+                        <ul className="space-y-1 text-xs leading-relaxed">
+                            <li className="flex gap-2">
+                                <span className="text-orange-600 dark:text-orange-400 font-semibold shrink-0">
+                                    +
+                                </span>
+                                <span className="text-muted-foreground">
+                                    Dépassement du budget alloué
+                                </span>
+                            </li>
+                            <li className="flex gap-2">
+                                <span className="text-red-600 dark:text-red-400 font-semibold shrink-0">
+                                    -
+                                </span>
+                                <span className="text-muted-foreground">
+                                    Jours restants à réaliser
+                                </span>
+                            </li>
+                        </ul>
+                    </Card>
+                    <Card className="p-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                            Écart effectif / théorique
+                        </p>
+                        <ul className="space-y-1 text-xs leading-relaxed">
+                            <li className="flex gap-2">
+                                <span className="text-orange-600 dark:text-orange-400 font-semibold shrink-0">
+                                    +
+                                </span>
+                                <span className="text-muted-foreground">
+                                    Avance de facturation
+                                </span>
+                            </li>
+                            <li className="flex gap-2">
+                                <span className="text-red-600 dark:text-red-400 font-semibold shrink-0">
+                                    -
+                                </span>
+                                <span className="text-muted-foreground">
+                                    Facturation en retard
+                                </span>
+                            </li>
+                        </ul>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 }
