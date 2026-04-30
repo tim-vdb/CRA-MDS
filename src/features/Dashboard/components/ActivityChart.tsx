@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, CalendarDays, TrendingUp, Users } from "lucide-react"
 import { ChartConfig, ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import { ActivityChartPoint, getActivitiesForChart } from "../server/chart.action"
+import { useActivityRefresh } from "../context/ActivityRefreshContext"
 
 const MONTHS_FR = [
   "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -27,6 +28,7 @@ function getDaysInMonth(month: number, year: number) {
 
 export function ActivityChart({ clientId }: ActivityChartProps) {
   const today = new Date()
+  const { refreshCounter } = useActivityRefresh()
   const [month, setMonth] = useState(today.getMonth() + 1)
   const [year, setYear] = useState(today.getFullYear())
   const [data, setData] = useState<ActivityChartPoint[]>([])
@@ -37,7 +39,7 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
       const result = await getActivitiesForChart(month, year, clientId)
       setData(result)
     })
-  }, [month, year, clientId])
+  }, [month, year, clientId, refreshCounter])
 
   const isCurrentMonth = month === today.getMonth() + 1 && year === today.getFullYear()
 
