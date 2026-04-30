@@ -2,9 +2,16 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getUser } from "@/lib/auth-session";
 import { UpdateClientSchema, type UpdateClientInput } from "../clients.schema";
 
 export async function createClient(formData: FormData) {
+  const user = await getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized: User not authenticated");
+  }
+
   const getString = (key: string) => {
     const value = formData.get(key);
     return value ? String(value) : null;
@@ -25,6 +32,7 @@ export async function createClient(formData: FormData) {
   await prisma.clients.create({
     data: {
       name: getString("name")!,
+      userId: user.id,
 
       email: getString("email"),
       phone: getString("phone"),
@@ -49,6 +57,22 @@ export async function createClient(formData: FormData) {
 }
 
 export async function updateClient(id: string, input: UpdateClientInput) {
+  const user = await getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized: User not authenticated");
+  }
+
+  // Vérifier que le client appartient à l'utilisateur
+  const client = await prisma.clients.findUnique({
+    where: { id },
+    select: { userId: true },
+  });
+
+  if (!client || client.userId !== user.id) {
+    throw new Error("Unauthorized: Client does not belong to this user");
+  }
+
   const data = UpdateClientSchema.parse(input);
 
   await prisma.clients.update({
