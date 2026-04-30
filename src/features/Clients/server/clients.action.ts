@@ -31,25 +31,23 @@ export async function createClient(formData: FormData) {
   const siret = getString("siret");
   const email = getString("email");
 
-  // Vérifier si l'email existe déjà
-  if (email) {
-    const existingEmail = await prisma.clients.findFirst({
-      where: { email },
+  // Vérifier si l'utilisateur a déjà un client avec ce SIRET
+  if (siret) {
+    const existingSiret = await prisma.clients.findFirst({
+      where: { userId: user.id, siret },
     });
-
-    if (existingEmail) {
-      throw new Error("EMAIL_ALREADY_EXISTS");
+    if (existingSiret) {
+      throw new Error("SIRET_ALREADY_EXISTS");
     }
   }
 
-  // Vérifier si le SIRET existe déjà
-  if (siret) {
-    const existingSiret = await prisma.clients.findFirst({
-      where: { siret },
+  // Vérifier si l'utilisateur a déjà un client avec cet email
+  if (email) {
+    const existingEmail = await prisma.clients.findFirst({
+      where: { userId: user.id, email },
     });
-
-    if (existingSiret) {
-      throw new Error("SIRET_ALREADY_EXISTS");
+    if (existingEmail) {
+      throw new Error("EMAIL_ALREADY_EXISTS");
     }
   }
 

@@ -142,6 +142,8 @@ export default function ActivityGrid({ initialActivities, initialMonth, initialY
   const trimmedValue = value.trim();
   const parsed = trimmedValue === "" ? 0 : parseFloat(trimmedValue);
   if (isNaN(parsed)) return;
+  // Limiter entre 0 et 1 inclus
+  if (parsed < 0 || parsed > 1) return;
 
   const date = new Date(year, month - 1, day);
   await upsertActivity(clientId, date, parsed);
@@ -343,9 +345,9 @@ export default function ActivityGrid({ initialActivities, initialMonth, initialY
                               <input
                                 autoFocus
                                 type="number"
-                                step="0.5"
+                                step="0.01"
                                 min="0"
-                                max="2"
+                                max="1"
                                 defaultValue={d.hours ?? ""}
                                 onBlur={(e) => {
                                 handleCellSave(row.clientId, d.day, e.target.value);
