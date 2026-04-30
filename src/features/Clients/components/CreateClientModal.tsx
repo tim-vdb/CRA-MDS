@@ -15,6 +15,25 @@ import { createClient } from "../server/clients.action";
 
 export default function CreateClientModal() {
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (formData: FormData) => {
+    setError(null);
+    try {
+      await createClient(formData);
+      setOpen(false);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Une erreur s'est produite";
+      
+      if (errorMessage === "SIRET_ALREADY_EXISTS") {
+        setError("Ce SIRET existe déjà dans la base de données");
+      } else if (errorMessage === "EMAIL_ALREADY_EXISTS") {
+        setError("Cet email existe déjà dans la base de données");
+      } else {
+        setError(errorMessage);
+      }
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -27,13 +46,13 @@ export default function CreateClientModal() {
           <DialogTitle>Créer un client</DialogTitle>
         </DialogHeader>
 
-        <form
-          action={async (formData) => {
-            await createClient(formData);
-            setOpen(false);
-          }}
-          className="space-y-6"
-        >
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+
+        <form action={handleSubmit} className="space-y-6">
           {/* 👤 Infos principales */}
           <div className="space-y-2">
             <h3 className="font-semibold">Informations</h3>
