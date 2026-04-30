@@ -15,7 +15,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import { ChevronRight, House, Settings2, Users, type LucideIcon } from "lucide-react"
+import { ChartColumn, ChevronRight, House, LayoutDashboard, Settings2, Users, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 
 type NavSubItem = {
@@ -39,9 +39,9 @@ type NavMain = {
 
 const navMainItem: NavMain[] = [
   {
-    title: "Accueil",
+    title: "Dashboard",
     url: "/",
-    icon: House,
+    icon: ChartColumn,
   },
   {
     title: "Clients",
@@ -57,7 +57,7 @@ const navDropdown: NavMainDropdown[] = [
     icon: Settings2,
     items: [
       {
-        title: "Compte",
+        title: "Account",
         url: "/account",
       },
     ],

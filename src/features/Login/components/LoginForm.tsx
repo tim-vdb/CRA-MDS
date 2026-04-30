@@ -1,111 +1,24 @@
 "use client";
 
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
-import { useEffect, useState } from "react";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, GithubIcon } from "lucide-react";
-import { authClient, signIn, useSession } from "@/lib/auth-client";
-import Link from "next/link";
+import { authClient, signIn } from "@/lib/auth-client";
 import { cn } from "@/utils/utils";
-
-const LoginFormSchema = z.object({
-  email: z.string().email("Email invalide"),
-  password: z.string().min(6, "Minimum 6 caractères"),
-});
+import { GithubIcon, Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
-  const isOAuthReturn = searchParams.get("oauth") === "1";
-  const router = useRouter();
-  const { data: session } = useSession();
-  const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [githubLoading, setGithubLoading] = useState(false);
-
-  function canRedirectOAuthUser(email?: string | null) {
-    // Add your custom user condition here (domain, role, allowlist, etc.)
-    return Boolean(email);
-  }
-
-  function getOAuthReturnUrl() {
-    const params = new URLSearchParams({ oauth: "1" });
-    if (callbackUrl) {
-      params.set("callbackUrl", callbackUrl);
-    }
-    return `/login?${params.toString()}`;
-  }
-
-  useEffect(() => {
-    if (!isOAuthReturn || !session?.user) {
-      return;
-    }
-
-    setGoogleLoading(false);
-    setGithubLoading(false);
-
-    if (!canRedirectOAuthUser(session.user.email)) {
-      toast.error("Utilisateur OAuth non autorisé");
-      return;
-    }
-
-    router.push(callbackUrl ?? "/");
-    router.refresh();
-  }, [isOAuthReturn, session, callbackUrl, router]);
-
-  const form = useForm<z.infer<typeof LoginFormSchema>>({
-    resolver: zodResolver(LoginFormSchema),
-    defaultValues: { email: "", password: "" },
-  });
-
-  async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/auth/sign-in/email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-          callbackURL: callbackUrl ?? "/",
-        }),
-        credentials: "include",
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        toast.error(data?.message || data?.error || "Une erreur est survenue");
-        return;
-      }
-
-      toast.success("Connexion réussie");
-      router.push(callbackUrl ?? "/");
-      router.refresh();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function handleGoogleSignIn() {
     await signIn.social(
       {
         provider: "google",
-        callbackURL: getOAuthReturnUrl(),
+        callbackURL: callbackUrl ?? "/",
       },
       {
         onRequest: () => {
@@ -123,34 +36,33 @@ export default function LoginForm() {
     try {
       await authClient.signIn.social({
         provider: "github",
-        callbackURL: getOAuthReturnUrl(),
+        callbackURL: callbackUrl ?? "/",
       });
     } catch {
-      toast.error("Erreur lors de la connexion avec GitHub");
+      toast.error("Error signing in with GitHub");
       setGithubLoading(false);
     }
   }
 
   return (
     <div className="flex items-center justify-center text-foreground min-h-screen">
-      <div className="bg-white dark:bg-white border-4 border-zinc-200 dark:border-zinc-300 rounded-3xl p-10 w-full max-w-md shadow-lg">
+      <div className="bg-white dark:bg-white dark:border-zinc-300 rounded-3xl p-10 w-full max-w-md shadow-lg">
         <div className="text-center mb-8">
           <p className="text-xs uppercase tracking-[0.25em] text-zinc-700 font-inter">
-            Connexion
+            Sign in
           </p>
-          <h2 className="text-4xl leading-tight text-zinc-950 dark:text-zinc-900 mt-1">
-            Bienvenue sur CRA Solutions
+          <h2 className="text-2xl leading-tight text-zinc-950 dark:text-zinc-900 mt-1">
+            Welcome to CRA Solutions
           </h2>
           <p className="font-inter text-sm text-zinc-600 mt-3">
-            Connectez-vous pour accéder à votre espace.
+            Connect to your account to access your dashboard
           </p>
         </div>
 
-        {/* Google OAuth */}
         <Button
           variant="outline"
           className={cn("w-full gap-2 mb-4 border-zinc-300 dark:border-zinc-300 text-zinc-800 dark:text-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-100")}
-          disabled={loading || googleLoading}
+          disabled={googleLoading}
           onClick={handleGoogleSignIn}
         >
           {
@@ -186,93 +98,20 @@ export default function LoginForm() {
           Sign in with Google
         </Button>
 
-        {isOAuthReturn && session?.user?.email && (
-          <p className="mb-4 text-center text-xs text-zinc-600">
-            Email connecté: {session.user.email}
-          </p>
-        )}
-
-        {/* GitHub OAuth */}
         <Button
           type="button"
           variant="outline"
           className={cn("w-full gap-2 mb-6 border-zinc-300 dark:border-zinc-300 text-zinc-800 dark:text-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-100")}
           onClick={handleGithubSignIn}
-          disabled={githubLoading || loading}
+          disabled={githubLoading}
         >
           {githubLoading ? (
             <Loader2 className="size-4 animate-spin" />
           ) : (
             <GithubIcon className="size-4" />
           )}
-          Continuer avec GitHub
+          Sign in with GitHub
         </Button>
-
-        <div className="relative mb-4">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-zinc-200" />
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-white px-2 text-zinc-500">ou</span>
-          </div>
-        </div>
-
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 font-inter">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-zinc-800">Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="exemple@mail.com"
-                      {...field}
-                      className="rounded-md border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-500 focus:outline-none"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-zinc-800">Mot de passe</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      {...field}
-                      className="rounded-md border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-500 focus:outline-none"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button
-              type="submit"
-              className="rounded-md text-white py-3 uppercase tracking-[0.2em] text-xs font-semibold"
-              disabled={loading || githubLoading}
-            >
-              {loading ? <Loader2 size={16} className="animate-spin" /> : "Se connecter"}
-            </Button>
-
-            <p className="text-center text-xs text-zinc-500">
-              Pas encore de compte ?{" "}
-              <Link href="/sign-up" className="underline text-zinc-700">
-                Créer un compte
-              </Link>
-            </p>
-          </form>
-        </Form>
       </div>
     </div>
   );

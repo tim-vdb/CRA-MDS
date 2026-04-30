@@ -19,12 +19,12 @@ export default function CreateClientModal() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>+ Nouveau client</Button>
+        <Button>+ New client</Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Créer un client</DialogTitle>
+          <DialogTitle>Create a client</DialogTitle>
         </DialogHeader>
 
         <form
@@ -36,38 +36,38 @@ export default function CreateClientModal() {
         >
           {/* 👤 Infos principales */}
           <div className="space-y-2">
-            <h3 className="font-semibold">Informations</h3>
-            <Input name="name" placeholder="Nom *" required />
+            <h3 className="font-semibold">Details</h3>
+            <Input name="name" placeholder="Name *" required />
             <Input name="email" placeholder="Email" />
-            <Input name="phone" placeholder="Téléphone" />
+            <Input name="phone" placeholder="Phone" />
           </div>
 
           {/* 🏢 Entreprise */}
           <div className="space-y-2">
-            <h3 className="font-semibold">Entreprise</h3>
-            <Input name="company" placeholder="Société" />
+            <h3 className="font-semibold">Company</h3>
+            <Input name="company" placeholder="Company name" />
             <Input name="siret" placeholder="SIRET" />
-            <Input name="vatNumber" placeholder="TVA" />
+            <Input name="vatNumber" placeholder="VAT number" />
           </div>
 
           {/* 📍 Adresse */}
           <div className="space-y-2">
-            <h3 className="font-semibold">Adresse</h3>
-            <Input name="address" placeholder="Adresse" />
-            <Input name="city" placeholder="Ville" />
-            <Input name="postalCode" placeholder="Code postal" />
-            <Input name="country" placeholder="Pays" defaultValue="France" />
+            <h3 className="font-semibold">Address</h3>
+            <Input name="address" placeholder="Address" />
+            <Input name="city" placeholder="City" />
+            <Input name="postalCode" placeholder="Postal code" />
+            <Input name="country" placeholder="Country" defaultValue="France" />
           </div>
 
           {/* 💰 Business */}
           <div className="space-y-2">
             <h3 className="font-semibold">Business</h3>
-            <Input name="dailyRate" type="number" placeholder="TJM (€)" />
+            <Input name="dailyRate" type="number" placeholder="Daily rate (€)" />
           </div>
 
           {/* 📅 Dates */}
           <div className="space-y-2">
-            <h3 className="font-semibold">Mission</h3>
+            <h3 className="font-semibold">Assignment</h3>
             <Input name="startDate" type="date" />
             <Input name="endDate" type="date" />
           </div>
@@ -75,11 +75,11 @@ export default function CreateClientModal() {
           {/* ✅ Actif */}
           <div className="flex items-center gap-2">
             <Checkbox name="isActive" defaultChecked />
-            <span>Client actif</span>
+            <span>Active client</span>
           </div>
 
           <Button type="submit" className="w-full">
-            Créer le client
+            Create client
           </Button>
         </form>
       </DialogContent>
