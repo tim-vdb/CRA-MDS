@@ -108,10 +108,10 @@ export default function SummaryTable({
             <Table>
                 {cras.length > 0 && (
                     <TableBody className="bg-muted/20">
-                        {/* Écart total € */}
+                        {/* Total gap € */}
                         <TableRow className="border-t-2">
                             <TableCell colSpan={5} className="text-[11px] uppercase tracking-wide font-semibold text-muted-foreground py-2">
-                                Écart total €
+                                Total gap €
                             </TableCell>
                             <TableCell className="text-right py-2">
                                 <EcartValue value={ecartThMaxEur} />
@@ -121,10 +121,10 @@ export default function SummaryTable({
                             </TableCell>
                         </TableRow>
 
-                        {/* Écart total jours */}
+                        {/* Total gap days */}
                         <TableRow>
                             <TableCell colSpan={5} className="text-[11px] uppercase tracking-wide font-semibold text-muted-foreground py-2">
-                                Écart total jours
+                                Total gap days
                             </TableCell>
                             <TableCell className="text-right py-2">
                                 <EcartValue value={ecartThMaxDays} unit="j" />
@@ -137,7 +137,7 @@ export default function SummaryTable({
                         {/* Facturation block */}
                         <TableRow className="border-t">
                             <TableCell colSpan={3} className="text-[11px] uppercase tracking-wide font-semibold text-muted-foreground py-2">
-                                Facturé
+                                Billed
                             </TableCell>
                             <TableCell className="text-right tabular-nums font-semibold py-2">
                                 {fmtEur(totalEffectif)}
@@ -146,7 +146,7 @@ export default function SummaryTable({
                         </TableRow>
                         <TableRow>
                             <TableCell colSpan={2} className="text-[11px] uppercase tracking-wide font-semibold text-muted-foreground py-2">
-                                Reste à facturer
+                                Remaining to bill
                             </TableCell>
                             <TableCell className="text-right tabular-nums font-medium py-2">
                                 {dailyRate > 0 ? fmtDays(resteAFacturerDays) : "—"}
@@ -160,7 +160,7 @@ export default function SummaryTable({
                         {/* Consommation block */}
                         <TableRow className="border-t">
                             <TableCell className="text-[11px] uppercase tracking-wide font-semibold text-muted-foreground py-2">
-                                Consommé
+                                Consumed
                             </TableCell>
                             <TableCell className="text-right tabular-nums font-semibold py-2">
                                 {fmtDays(totalDays)}
@@ -172,7 +172,7 @@ export default function SummaryTable({
                         </TableRow>
                         <TableRow>
                             <TableCell className="text-[11px] uppercase tracking-wide font-semibold text-muted-foreground py-2">
-                                Reste à consommer
+                                Remaining to consume
                             </TableCell>
                             <TableCell className="text-right tabular-nums font-medium py-2">
                                 {maxDays > 0 ? fmtDays(resteAConsommerDays) : "—"}

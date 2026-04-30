@@ -76,8 +76,8 @@ function buildRows(clients: ClientWithActivities[], year: number, month: number)
 }
 
 const MONTHS = [
-  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
 
 const PAGE_SIZE = 10;
@@ -172,18 +172,18 @@ export default function ActivityGrid({ initialActivities, initialMonth, initialY
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">
-              Compte Rendu d'Activité
+              Activity Report
             </h1>
             <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-1.5">
               {isPending ? (
                 <>
                   <Loader2 className="h-3 w-3 animate-spin" />
-                  Chargement…
+                  Loading…
                 </>
               ) : (
                 <>
                   {filtered.length} client{filtered.length > 1 ? "s" : ""}
-                  {search ? ` · filtre : "${search}"` : ""}
+                  {search ? ` · filter: "${search}"` : ""}
                 </>
               )}
             </p>
@@ -246,7 +246,7 @@ export default function ActivityGrid({ initialActivities, initialMonth, initialY
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Rechercher un client…"
+            placeholder="Search a client…"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             className="pl-9 bg-white border-gray-200 h-9 text-sm"
@@ -265,7 +265,7 @@ export default function ActivityGrid({ initialActivities, initialMonth, initialY
               <thead>
                 <tr className="border-b border-gray-100">
                   <th className="sticky left-0 z-20 bg-gray-50 border-r border-gray-200 px-4 py-3 text-left font-semibold text-gray-700 min-w-[180px] whitespace-nowrap">
-                    Libellé
+                    Label
                   </th>
                   {dayNumbers.map((d) => {
                     const weekend = isWeekend(year, month, d);
@@ -298,7 +298,7 @@ export default function ActivityGrid({ initialActivities, initialMonth, initialY
                       colSpan={totalDays + 2}
                       className="py-12 text-center text-gray-400 text-sm"
                     >
-                      {isPending ? "Chargement des données…" : "Aucune activité ce mois-ci"}
+                      {isPending ? "Loading data…" : "No activity this month"}
                     </td>
                   </tr>
                 ) : (
@@ -387,7 +387,7 @@ export default function ActivityGrid({ initialActivities, initialMonth, initialY
         {totalPages > 1 && (
           <div className="flex items-center justify-between">
             <p className="text-xs text-gray-500">
-              Page {page} sur {totalPages} ·{" "}
+              Page {page} of {totalPages} ·{" "}
               {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} /{" "}
               {filtered.length} clients
             </p>
@@ -449,14 +449,14 @@ export default function ActivityGrid({ initialActivities, initialMonth, initialY
         <div className="flex items-center gap-4 text-xs text-gray-400">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm bg-gray-200" />
-            Week-end
+            Weekend
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm bg-blue-100" />
-            Aujourd'hui
+            Today
           </div>
           <div className="flex items-center gap-1.5 italic">
-            Cliquez sur une cellule pour modifier
+            Click a cell to edit
           </div>
         </div>
       </div>

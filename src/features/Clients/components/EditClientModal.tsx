@@ -77,11 +77,11 @@ export default function EditClientModal({ client }: EditClientModalProps) {
     async function onSubmit(values: UpdateClientInput) {
         try {
             await updateClient(client.id, values);
-            toast.success("Client mis à jour");
+            toast.success("Client updated");
             setOpen(false);
         } catch (error) {
             toast.error(
-                error instanceof Error ? error.message : "Une erreur est survenue"
+                error instanceof Error ? error.message : "An error occurred"
             );
         }
     }
@@ -115,16 +115,15 @@ export default function EditClientModal({ client }: EditClientModalProps) {
             <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
                     <Pencil className="h-3.5 w-3.5 mr-1.5" />
-                    Modifier
+                    Edit
                 </Button>
             </DialogTrigger>
 
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Modifier le client</DialogTitle>
+                    <DialogTitle>Edit client</DialogTitle>
                     <DialogDescription>
-                        Met à jour les informations, l&apos;adresse et les paramètres de
-                        mission de ce client.
+                        Update the details, address and assignment settings for this client.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -137,7 +136,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                         {/* ── Informations ────────────────────────────── */}
                         <section className="space-y-3">
                             <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                Informations
+                                Details
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <FormField
@@ -146,12 +145,12 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     render={({ field }) => (
                                         <FormItem className="sm:col-span-2">
                                             <FormLabel>
-                                                Nom <span className="text-destructive">*</span>
+                                                Name <span className="text-destructive">*</span>
                                             </FormLabel>
                                             <FormControl>
                                                 <Input
                                                     {...field}
-                                                    placeholder="Nom du client"
+                                                    placeholder="Client name"
                                                     autoFocus
                                                 />
                                             </FormControl>
@@ -181,7 +180,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="phone"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Téléphone</FormLabel>
+                                            <FormLabel>Phone</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     {...field}
@@ -200,7 +199,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                         {/* ── Entreprise ──────────────────────────────── */}
                         <section className="space-y-3">
                             <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                Entreprise
+                                Company
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <FormField
@@ -208,9 +207,9 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="company"
                                     render={({ field }) => (
                                         <FormItem className="sm:col-span-2">
-                                            <FormLabel>Société</FormLabel>
+                                            <FormLabel>Company name</FormLabel>
                                             <FormControl>
-                                                <Input {...field} placeholder="Nom de la société" />
+                                                <Input {...field} placeholder="Company name" />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -234,7 +233,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="vatNumber"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>N° TVA</FormLabel>
+                                            <FormLabel>VAT number</FormLabel>
                                             <FormControl>
                                                 <Input {...field} placeholder="FR12345678901" />
                                             </FormControl>
@@ -250,7 +249,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                         {/* ── Adresse ─────────────────────────────────── */}
                         <section className="space-y-3">
                             <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                Adresse
+                                Address
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <FormField
@@ -258,7 +257,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="address"
                                     render={({ field }) => (
                                         <FormItem className="sm:col-span-2">
-                                            <FormLabel>Adresse</FormLabel>
+                                            <FormLabel>Address</FormLabel>
                                             <FormControl>
                                                 <Input {...field} placeholder="12 rue de la Paix" />
                                             </FormControl>
@@ -271,7 +270,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="postalCode"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Code postal</FormLabel>
+                                            <FormLabel>Postal code</FormLabel>
                                             <FormControl>
                                                 <Input {...field} placeholder="75001" />
                                             </FormControl>
@@ -284,7 +283,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="city"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Ville</FormLabel>
+                                            <FormLabel>City</FormLabel>
                                             <FormControl>
                                                 <Input {...field} placeholder="Paris" />
                                             </FormControl>
@@ -297,7 +296,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="country"
                                     render={({ field }) => (
                                         <FormItem className="sm:col-span-2">
-                                            <FormLabel>Pays</FormLabel>
+                                            <FormLabel>Country</FormLabel>
                                             <FormControl>
                                                 <Input {...field} placeholder="France" />
                                             </FormControl>
@@ -313,7 +312,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                         {/* ── Mission ─────────────────────────────────── */}
                         <section className="space-y-3">
                             <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                Mission
+                                Assignment
                             </h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <FormField
@@ -321,7 +320,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="dailyRate"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>TJM (€)</FormLabel>
+                                            <FormLabel>Daily rate (€)</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="number"
@@ -352,7 +351,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="maxDays"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Plafond (jours)</FormLabel>
+                                            <FormLabel>Cap (days)</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="number"
@@ -383,7 +382,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="startDate"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Date de début</FormLabel>
+                                            <FormLabel>Start date</FormLabel>
                                             <FormControl>
                                                 <Input type="date" {...field} />
                                             </FormControl>
@@ -396,7 +395,7 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                     name="endDate"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Date de fin</FormLabel>
+                                            <FormLabel>End date</FormLabel>
                                             <FormControl>
                                                 <Input type="date" {...field} />
                                             </FormControl>
@@ -419,10 +418,10 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                             </FormControl>
                                             <div className="flex-1">
                                                 <FormLabel className="cursor-pointer">
-                                                    Client actif
+                                                    Active client
                                                 </FormLabel>
                                                 <p className="text-xs text-muted-foreground mt-0.5">
-                                                    Décocher pour archiver le client sans le supprimer.
+                                                    Uncheck to archive the client without deleting them.
                                                 </p>
                                             </div>
                                         </FormItem>
@@ -439,13 +438,13 @@ export default function EditClientModal({ client }: EditClientModalProps) {
                                 onClick={() => setOpen(false)}
                                 disabled={isSubmitting}
                             >
-                                Annuler
+                                Cancel
                             </Button>
                             <Button type="submit" disabled={isSubmitting}>
                                 {isSubmitting && (
                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                                 )}
-                                Enregistrer les modifications
+                                Save changes
                             </Button>
                         </div>
                     </form>

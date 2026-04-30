@@ -151,7 +151,7 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                                             : "bg-neutral-100 text-neutral-500 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:border-neutral-700"
                                     }
                                 >
-                                    {client.isActive ? "Actif" : "Inactif"}
+                                    {client.isActive ? "Active" : "Inactive"}
                                 </Badge>
                             </div>
 
@@ -179,7 +179,7 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                                             month: "long",
                                             year: "numeric",
                                         })
-                                        : "En cours"}
+                                        : "Ongoing"}
                                 </p>
                             )}
                         </div>
@@ -198,22 +198,22 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                             <InfoItem icon={Mail} label="Email" value={client.email} />
                         )}
                         {client.phone && (
-                            <InfoItem icon={Phone} label="Téléphone" value={client.phone} />
+                            <InfoItem icon={Phone} label="Phone" value={client.phone} />
                         )}
                         {addressLine && (
-                            <InfoItem icon={MapPin} label="Adresse" value={addressLine} />
+                            <InfoItem icon={MapPin} label="Address" value={addressLine} />
                         )}
                         {client.siret && (
                             <InfoItem icon={Hash} label="SIRET" value={client.siret} />
                         )}
                         {client.vatNumber && (
-                            <InfoItem icon={Receipt} label="N° TVA" value={client.vatNumber} />
+                            <InfoItem icon={Receipt} label="VAT number" value={client.vatNumber} />
                         )}
                         {dailyRate > 0 && (
                             <InfoItem
                                 icon={Briefcase}
-                                label="TJM"
-                                value={`${fmtEur(dailyRate)} / jour`}
+                                label="Daily rate"
+                                value={`${fmtEur(dailyRate)} / day`}
                             />
                         )}
                     </div>
@@ -221,40 +221,40 @@ export default function ClientInfos({ client }: ClientInfosProps) {
             </Card>
 
             {/* ── KPI cards ──────────────────────────────────── */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                 <KpiCard
-                    label="Jours travaillés"
+                    label="Days worked"
                     value={fmtDays(totalDays)}
-                    sub={maxDays > 0 ? `sur ${fmtDays(maxDays)} alloués` : "Pas de plafond défini"}
+                    sub={maxDays > 0 ? `out of ${fmtDays(maxDays)} allocated` : "No cap defined"}
                 />
                 <KpiCard
-                    label="CA théorique"
+                    label="Theoretical revenue"
                     value={dailyRate > 0 ? fmtEur(totalTheorique) : "—"}
-                    sub={budget > 0 ? `Budget contrat : ${fmtEur(budget)}` : undefined}
+                    sub={budget > 0 ? `Contract budget: ${fmtEur(budget)}` : undefined}
                 />
                 <KpiCard
-                    label="Encaissé"
+                    label="Collected"
                     value={fmtEur(totalPaid)}
                     sub={
                         totalPending > 0
-                            ? `${fmtEur(totalPending)} en attente de paiement`
-                            : "Aucun montant en attente"
+                            ? `${fmtEur(totalPending)} pending payment`
+                            : "No pending amount"
                     }
                 />
-                <KpiCard
-                    label="Avancement"
+                {/* <KpiCard
+                    label="Progress"
                     value={progress !== null ? `${Math.round(progress)} %` : "—"}
                     sub={
                         progress === null
-                            ? "Pas de plafond défini"
+                            ? "No cap defined"
                             : progress >= 100
-                                ? "Budget dépassé !"
+                                ? "Budget exceeded!"
                                 : progress >= 80
-                                    ? "Attention au budget"
-                                    : "Dans les limites du contrat"
+                                    ? "Watch your budget"
+                                    : "Within contract limits"
                     }
                     warning={progress !== null && progress >= 80}
-                />
+                /> */}
             </div>
 
             {/* ── Progress bar ────────────────────────────────── */}
@@ -262,7 +262,7 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                 <div className="space-y-2 px-0.5">
                     <div className="flex justify-between items-baseline">
                         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                            Consommation du budget
+                            Budget consumption
                         </span>
                         <span className="text-xs tabular-nums text-muted-foreground">
                             {fmtDays(totalDays)} / {fmtDays(maxDays)}
@@ -282,10 +282,10 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                     </div>
                     <p className="text-xs text-muted-foreground">
                         {totalDays > maxDays
-                            ? `Dépassement de ${fmtDays(totalDays - maxDays)}${dailyRate > 0 ? ` (${fmtEur((totalDays - maxDays) * dailyRate)})` : ""}`
+                            ? `Exceeded by ${fmtDays(totalDays - maxDays)}${dailyRate > 0 ? ` (${fmtEur((totalDays - maxDays) * dailyRate)})` : ""}`
                             : totalDays === maxDays
-                                ? "Budget entièrement consommé"
-                                : `Reste ${fmtDays(maxDays - totalDays)} à consommer${dailyRate > 0 ? ` (${fmtEur((maxDays - totalDays) * dailyRate)})` : ""}`}
+                                ? "Budget fully consumed"
+                                : `Remaining ${fmtDays(maxDays - totalDays)} to consume${dailyRate > 0 ? ` (${fmtEur((maxDays - totalDays) * dailyRate)})` : ""}`}
                     </p>
                 </div>
             )}
