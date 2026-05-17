@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "vercel-build": "npx prisma generate --schema=src/prisma/schema.prisma && next build && npx prisma migrate deploy --schema=src/prisma/schema.prisma",
+    "vercel-build": "npx prisma generate --schema=src/prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
