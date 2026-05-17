@@ -73,16 +73,16 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
   return (
     <Card className="overflow-hidden">
       <CardHeader className="pb-4 border-b bg-muted/20">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h3 className="text-base font-semibold">Monthly activity</h3>
             <p className="text-xs text-muted-foreground mt-0.5">Days worked per calendar day</p>
           </div>
-          <div className="flex items-center gap-1 rounded-lg border bg-background px-1 py-0.5">
+          <div className="flex items-center gap-1 rounded-lg border bg-background px-1 py-0.5 self-start sm:self-auto">
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={prevMonth} disabled={isPending}>
               <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
-            <span className="w-36 text-center text-sm font-medium tabular-nums">
+            <span className="w-32 sm:w-36 text-center text-sm font-medium tabular-nums">
               {MONTHS_FR[month - 1]} {year}
             </span>
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={nextMonth} disabled={isPending || isCurrentMonth}>
@@ -93,13 +93,13 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
       </CardHeader>
 
       <CardContent className="pt-5">
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           <div className="flex items-center gap-3 rounded-xl border p-3">
             <div className="rounded-lg bg-primary/10 p-2 shrink-0">
-              <CalendarDays className="h-4 w-4 text-primary" />
+              <CalendarDays className="h-4 w-4 text-primary " />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">Total days</p>
+              <p className="text-xs text-muted-foreground">Total days</p>
               <p className="text-xl font-semibold">{totalDays}j</p>
             </div>
           </div>
@@ -108,7 +108,7 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
               <TrendingUp className="h-4 w-4 text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">Active days</p>
+              <p className="text-xs text-muted-foreground">Active days</p>
               <p className="text-xl font-semibold">{activeDays}</p>
             </div>
           </div>
@@ -117,7 +117,7 @@ export function ActivityChart({ clientId }: ActivityChartProps) {
               <Users className="h-4 w-4 text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="text-xs text-muted-foreground truncate">Active clients</p>
+              <p className="text-xs text-muted-foreground">Active clients</p>
               <p className="text-xl font-semibold">{activeClients}</p>
             </div>
           </div>

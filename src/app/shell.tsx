@@ -16,7 +16,7 @@ export function Shell({ user, children }: { user: User | null; children: React.R
     if (isAuthPage) {
         return (
             <UserProvider user={user}>
-                <div className="bg-[url('/images/bg2.jpg')] bg-cover bg-center h-screen flex items-center justify-center">
+                <div className="bg-cover bg-center h-screen flex items-center justify-center">
                     {children}
                 </div>
             </UserProvider>
@@ -25,7 +25,7 @@ export function Shell({ user, children }: { user: User | null; children: React.R
 
     return (
         <UserProvider user={user}>
-            <div className="bg-[url('/images/bg2.jpg')] bg-cover bg-center h-screen overflow-hidden">
+            <div className="bg-cover bg-center h-screen overflow-hidden">
                 <SidebarProvider className="h-full gap-2 isolate pr-0! p-2 [&>div]:transition-all [&>div]:duration-800">
                     <Sheet>
                         <AppSidebar />
