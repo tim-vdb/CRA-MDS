@@ -8,27 +8,25 @@ datasource db {
   provider = "postgresql"
 }
 
-/// *
-/// * ---------------- USERS & ROLES ----------------
+///  * ---------------- USERS & ROLES ----------------
 model User {
   id            String         @id @default(cuid())
   name          String
   email         String         @unique
   emailVerified Boolean        @default(false)
   image         String?
+  role          String         @default("MEMBER")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @default(now()) @updatedAt
-  role          String         @default("MEMBER")
-  Clients       Clients[]
   accounts      Account[]
   registrations Registration[]
   sessions      Session[]
+  clients       Clients[]
 
   @@map("user")
 }
 
-/// *
-/// * ---------------- REGISTRATIONS ----------------
+///  * ---------------- REGISTRATIONS ----------------
 model Registration {
   id           String   @id @default(cuid())
   name         String
@@ -43,8 +41,7 @@ model Registration {
   @@map("registration")
 }
 
-/// *
-/// * ---------------- SESSIONS & ACCOUNTS ----------------
+///  * ---------------- SESSIONS & ACCOUNTS ----------------
 model Session {
   id        String   @id @default(cuid())
   expiresAt DateTime
@@ -89,62 +86,88 @@ model Verification {
   @@map("verification")
 }
 
+model Clients {
+  id   String @id @default(cuid())
+  name String
+
+  email      String?
+  phone      String?
+  company    String?
+  address    String?
+  city       String?
+  postalCode String?
+  country    String? @default("France")
+
+  siret     String?
+  vatNumber String?
+
+  dailyRate Float? // TJM (Taux Journalier Moyen)
+  maxDays   Float? // Nombre de jours maximum alloués pour le contrat
+  isActive  Boolean   @default(true)
+  startDate DateTime?
+  endDate   DateTime?
+  userId    String
+
+  activities  Activity[]
+  inviteLinks InviteLink[]
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  invoices  Invoice[]
+
+  @@unique([userId, siret])
+  @@unique([userId, email])
+  @@index([name])
+  @@index([company])
+  @@index([userId])
+}
+
 model Activity {
-  id              String    @id
-  clientId        String
-  date            DateTime
-  month           Int
-  year            Int
-  daysWorked      Float
-  hoursWorked     Float?
-  description     String?
+  id String @id @default(cuid())
+
+  clientId String
+  client   Clients @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  date  DateTime
+  month Int
+  year  Int
+
+  daysWorked  Float
+  hoursWorked Float?
+  description String?
+
   validatedAt     DateTime?
   rejectedAt      DateTime?
   rejectionReason String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now())
-  Clients         Clients   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  Invoice         Invoice[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  invoices Invoice[]
 
   @@unique([clientId, date])
   @@index([clientId])
   @@index([month, year])
 }
 
-model Clients {
-  id            String          @id
-  name          String
-  email         String?
-  phone         String?
-  company       String?
-  address       String?
-  city          String?
-  postalCode    String?
-  country       String?         @default("France")
-  siret         String?
-  vatNumber     String?
-  dailyRate     Float?
-  maxDays       Float?
-  isActive      Boolean         @default(true)
-  startDate     DateTime?
-  endDate       DateTime?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @default(now())
-  userId        String
-  Activity      Activity[]
-  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  Invoice       Invoice[]
-  client_invite client_invite[]
+model InviteLink {
+  id        String   @id @default(cuid())
+  clientId  String
+  token     String   @unique // ex: random 32 chars ou UUID v4
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdBy String // userId de l'admin qui a créé le lien
+  client    Clients  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
-  @@unique([userId, email])
-  @@unique([userId, siret])
-  @@index([company])
-  @@index([name])
-  @@index([userId])
+  @@index([token])
+  @@index([clientId])
+  @@map("client_invite")
 }
 
 model Invoice {
-  id        String        @id
+  id        String        @id @default(cuid())
   craId     String?
   clientId  String?
   amountHT  Float
@@ -152,28 +175,15 @@ model Invoice {
   tvaRate   Float         @default(20.0)
   tvaAmount Float
   status    InvoiceStatus
-  number    String        @unique
+  number    String        @unique // ex: FACT-2026-001
   issuedAt  DateTime?
   createdAt DateTime      @default(now())
-  updatedAt DateTime
-  Clients   Clients?      @relation(fields: [clientId], references: [id])
-  Activity  Activity?     @relation(fields: [craId], references: [id])
+  updatedAt DateTime      @updatedAt
+
+  activity Activity? @relation(fields: [craId], references: [id], onDelete: SetNull)
+  client   Clients?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
 
   @@index([clientId, issuedAt])
-}
-
-model client_invite {
-  id        String   @id
-  clientId  String
-  token     String   @unique
-  expiresAt DateTime
-  used      Boolean  @default(false)
-  createdBy String
-  createdAt DateTime @default(now())
-  Clients   Clients  @relation(fields: [clientId], references: [id], onDelete: Cascade)
-
-  @@index([clientId])
-  @@index([token])
 }
 
 enum InvoiceStatus {
