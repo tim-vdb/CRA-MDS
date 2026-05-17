@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { useUser } from "@/context/UserContext"
 import { authClient } from "@/lib/auth-client"
+import { ChangeEmailDialog } from "./components/ChangeEmailDialog"
 
 const UpdateProfileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name cannot exceed 100 characters"),
@@ -151,7 +152,12 @@ export function UserProfile() {
                     <span className="font-medium">{user?.email ?? "—"}</span>
                   </div>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    You cannot directly change your email. <a href="#" className="underline hover:text-zinc-700">Request a change</a>
+                    You cannot directly change your email.{" "}
+                    {user?.email ? (
+                      <ChangeEmailDialog currentEmail={user.email} />
+                    ) : (
+                      <span className="opacity-60">Request a change</span>
+                    )}
                   </p>
                 </div>
 

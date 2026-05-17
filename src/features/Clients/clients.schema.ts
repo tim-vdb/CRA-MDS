@@ -3,15 +3,19 @@ import { z } from "zod";
 export const CreateClientSchema = z.object({
   name: z.string().min(1, "Name required"),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
-  phone: z.string().optional(),
-  company: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().default("France"),
-  siret: z.string().optional(),
-  vatNumber: z.string().optional(),
-  dailyRate: z.coerce.number().optional(),
+  phone: z.string().optional().or(z.literal("")),
+  company: z.string().optional().or(z.literal("")),
+  address: z.string().optional().or(z.literal("")),
+  city: z.string().optional().or(z.literal("")),
+  postalCode: z.string().optional().or(z.literal("")),
+  country: z.string().optional().or(z.literal("")),
+  siret: z.string().optional().or(z.literal("")),
+  vatNumber: z.string().optional().or(z.literal("")),
+  dailyRate: z.number().nonnegative("Must be positive").nullable().optional(),
+  maxDays: z.number().nonnegative("Must be positive").nullable().optional(),
+  isActive: z.boolean(),
+  startDate: z.string().optional().or(z.literal("")),
+  endDate: z.string().optional().or(z.literal("")),
 });
 
 export type CreateClientInput = z.infer<typeof CreateClientSchema>;
