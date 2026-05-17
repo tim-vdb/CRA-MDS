@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/utils/utils";
 import EditClientModal from "./EditClientModal";
+import { ExportCsvButton } from "./ExportCsvButton";
 
 type ActivityWithInvoices = Activity & { invoices: Invoice[] };
 export type ClientWithRelations = Clients & {
@@ -185,7 +186,11 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex gap-2 shrink-0">
+                        <div className="flex flex-wrap gap-2 shrink-0">
+                            <ExportCsvButton
+                                client={client}
+                                activities={client.activities}
+                            />
                             <EditClientModal client={client} />
                         </div>
                     </div>
