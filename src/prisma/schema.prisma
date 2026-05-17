@@ -9,7 +9,7 @@ datasource db {
 }
 
 /// *
-///  * ---------------- USERS & ROLES ----------------
+/// * ---------------- USERS & ROLES ----------------
 model User {
   id            String         @id @default(cuid())
   name          String
@@ -18,46 +18,17 @@ model User {
   image         String?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @default(now()) @updatedAt
-  role          Role           @default(MEMBER)
+  role          String         @default("MEMBER")
+  Clients       Clients[]
   accounts      Account[]
-  events        Event[]        @relation("CreatedEvents")
-  blogs         Blog[]         @relation("BlogAuthor")
   registrations Registration[]
   sessions      Session[]
 
   @@map("user")
 }
 
-enum Role {
-  MEMBER
-  CONTRIBUTOR
-  ADMIN
-}
-
 /// *
-///  * ---------------- EVENTS ----------------
-model Event {
-  id              String         @id @default(cuid())
-  name            String
-  description     String?
-  location        String
-  dateStart       DateTime       @default(now())
-  dateEnd         DateTime       @default(now())
-  openAt          DateTime       @default(now())
-  closeAt         DateTime       @default(now())
-  visibleToGuests Boolean        @default(false)
-  maxParticipants Int
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @default(now()) @updatedAt
-  creatorId       String
-  creator         User           @relation("CreatedEvents", fields: [creatorId], references: [id])
-  registrations   Registration[]
-
-  @@map("event")
-}
-
-/// *
-///  * ---------------- REGISTRATIONS ----------------
+/// * ---------------- REGISTRATIONS ----------------
 model Registration {
   id           String   @id @default(cuid())
   name         String
@@ -67,14 +38,13 @@ model Registration {
   createdAt    DateTime @default(now())
   eventId      String
   userId       String?
-  event        Event    @relation(fields: [eventId], references: [id])
   user         User?    @relation(fields: [userId], references: [id])
 
   @@map("registration")
 }
 
 /// *
-///  * ---------------- SESSIONS & ACCOUNTS ----------------
+/// * ---------------- SESSIONS & ACCOUNTS ----------------
 model Session {
   id        String   @id @default(cuid())
   expiresAt DateTime
@@ -119,42 +89,96 @@ model Verification {
   @@map("verification")
 }
 
-model Gallery {
-  id         Int         @id @default(autoincrement())
-  key        String      @unique
-  url        String
-  type       GalleryType @default(GALLERY)
-  uploadedBy String
-  createdAt  DateTime    @default(now())
+model Activity {
+  id              String    @id
+  clientId        String
+  date            DateTime
+  month           Int
+  year            Int
+  daysWorked      Float
+  hoursWorked     Float?
+  description     String?
+  validatedAt     DateTime?
+  rejectedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now())
+  Clients         Clients   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  Invoice         Invoice[]
+
+  @@unique([clientId, date])
+  @@index([clientId])
+  @@index([month, year])
 }
 
-enum GalleryType {
-  EVENT
-  GALLERY
+model Clients {
+  id            String          @id
+  name          String
+  email         String?
+  phone         String?
+  company       String?
+  address       String?
+  city          String?
+  postalCode    String?
+  country       String?         @default("France")
+  siret         String?
+  vatNumber     String?
+  dailyRate     Float?
+  maxDays       Float?
+  isActive      Boolean         @default(true)
+  startDate     DateTime?
+  endDate       DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now())
+  userId        String
+  Activity      Activity[]
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Invoice       Invoice[]
+  client_invite client_invite[]
+
+  @@unique([userId, email])
+  @@unique([userId, siret])
+  @@index([company])
+  @@index([name])
+  @@index([userId])
 }
 
-model Blog {
-  id        String   @id @default(cuid())
-  title     String
-  slug      String   @unique
-  content   String?
-  excerpt   String?
-  image     String?
-  published Boolean  @default(false)
-  views     Int      @default(0)
+model Invoice {
+  id        String        @id
+  craId     String?
+  clientId  String?
+  amountHT  Float
+  amountTTC Float
+  tvaRate   Float         @default(20.0)
+  tvaAmount Float
+  status    InvoiceStatus
+  number    String        @unique
+  issuedAt  DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime
+  Clients   Clients?      @relation(fields: [clientId], references: [id])
+  Activity  Activity?     @relation(fields: [craId], references: [id])
+
+  @@index([clientId, issuedAt])
+}
+
+model client_invite {
+  id        String   @id
+  clientId  String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdBy String
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  authorId  String
-  author    User     @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  Clients   Clients  @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
-  @@map("blog")
+  @@index([clientId])
+  @@index([token])
 }
 
-model Newsletter {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  createdAt DateTime @default(now())
-
-  @@map("newsletter")
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PAID
+  OVERDUE
 }
