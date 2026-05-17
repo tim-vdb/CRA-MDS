@@ -6,14 +6,8 @@ import ws from 'ws';
 // Toujours obligatoire pour Neon (WebSockets)
 neonConfig.webSocketConstructor = ws;
 
-// Récupère la connection string (celle avec -pooler)
 const connectionString = process.env.DATABASE_URL ?? '';
 
-if (!connectionString) {
-    throw new Error('DATABASE_URL est manquante dans les variables d\'environnement');
-}
-
-// PrismaNeon prend un objet { connectionString }
 const adapter = new PrismaNeon({ connectionString });
 
 const prisma = new PrismaClient({
