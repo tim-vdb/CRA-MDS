@@ -13,10 +13,10 @@ import {
 import React from "react"
 
 const ROUTE_LABELS: Record<string, string> = {
-  "": "dashboard",
+  "": "Dashboard",
   clients: "Clients",
-  dashboard: "dashboard",
-  account: "My account",
+  dashboard: "Dashboard",
+  account: "Account",
   admin: "Administration",
   profile: "Profile",
   settings: "Settings",
