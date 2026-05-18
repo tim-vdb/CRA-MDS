@@ -3,6 +3,7 @@
 import { createHmac } from "crypto";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 
 function createToken(userId: string, newEmail: string): string {
@@ -75,4 +76,11 @@ export async function requestEmailChange(newEmail: string): Promise<void> {
 </body>
 </html>`,
   });
+}
+
+export async function deleteAccount(): Promise<void> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) throw new Error("Not authenticated");
+
+  await prisma.user.delete({ where: { id: session.user.id } });
 }

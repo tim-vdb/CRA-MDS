@@ -12,6 +12,7 @@ import {
   CollapsibleContent,
 } from "@/components/ui/collapsible";
 import { cn } from "@/utils/utils";
+import { ClientCardActions } from "./ClientCardActions";
 
 type ClientListItem = Pick<
   Clients,
@@ -26,35 +27,44 @@ function ClientCard({
   archived?: boolean;
 }) {
   return (
-    <Link
-      href={`/clients/${client.id}`}
+    <div
       className={cn(
-        "group p-4 border border-border rounded-xl bg-card",
+        "group relative border border-border rounded-xl bg-card",
         "hover:bg-muted/50 hover:border-primary/30 hover:shadow-sm",
-        "transition-all flex items-start justify-between gap-3",
+        "transition-all",
         archived && "opacity-55 hover:opacity-100"
       )}
     >
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2 flex-wrap">
+      <Link
+        href={`/clients/${client.id}`}
+        className="flex items-start justify-between gap-3 p-4 pr-2"
+      >
+        <div className="min-w-0 flex-1">
           <p className="font-medium text-foreground truncate">{client.name}</p>
+          {client.company && (
+            <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5 truncate">
+              <Building2 className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{client.company}</span>
+            </p>
+          )}
+          {(client.city || client.dailyRate) && (
+            <p className="text-xs text-muted-foreground mt-1 truncate">
+              {[client.city, client.dailyRate ? `${client.dailyRate}€/j` : null]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          )}
         </div>
-        {client.company && (
-          <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5 truncate">
-            <Building2 className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{client.company}</span>
-          </p>
-        )}
-        {(client.city || client.dailyRate) && (
-          <p className="text-xs text-muted-foreground mt-1 truncate">
-            {[client.city, client.dailyRate ? `${client.dailyRate}€/j` : null]
-              .filter(Boolean)
-              .join(" · ")}
-          </p>
-        )}
+        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+      </Link>
+      <div className="absolute top-2 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
+        <ClientCardActions
+          clientId={client.id}
+          clientName={client.name}
+          isActive={client.isActive}
+        />
       </div>
-      <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
-    </Link>
+    </div>
   );
 }
 
