@@ -17,7 +17,6 @@ import {
 import Link from "next/link";
 import { cn } from "@/utils/utils";
 import EditClientModal from "./EditClientModal";
-import { ExportCsvButton } from "./ExportCsvButton";
 
 type ActivityWithInvoices = Activity & { invoices: Invoice[] };
 export type ClientWithRelations = Clients & {
@@ -190,22 +189,17 @@ export default function ClientInfos({ client }: ClientInfosProps) {
 
                         {/* Actions */}
                         <div className="flex flex-wrap gap-2 shrink-0">
-                            {client.activities.length === 0 ? (
+                            {client.activities.length === 0 && (
                                 <Button
                                     asChild
                                     size="sm"
                                     className="bg-primary"
                                 >
-                                    <Link href="/">
+                                    <Link href="/dashboard">
                                         <CalendarPlus className="h-3.5 w-3.5 mr-1.5" />
-                                        Saisir mes activités
+                                        Saisir mes premiers jours sur le dashboard
                                     </Link>
                                 </Button>
-                            ) : (
-                                <ExportCsvButton
-                                    client={client}
-                                    activities={client.activities}
-                                />
                             )}
                             <EditClientModal client={client} />
                         </div>
