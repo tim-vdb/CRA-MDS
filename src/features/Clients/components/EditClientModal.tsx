@@ -30,7 +30,7 @@ import { Separator } from "@/components/ui/separator";
 import {
     UpdateClientSchema,
     type UpdateClientInput,
-} from "../clients.schema";
+} from "../server/clients.schema";
 import { updateClient } from "../server/clients.action";
 import type { Clients } from "@/generated/prisma_client";
 

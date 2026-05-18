@@ -1,4 +1,4 @@
-import { UserProfile } from "@/features/Account/UserProfile";
+import { UserProfile } from "@/features/Account/components/UserProfile";
 
 export default function AccountPage() {
   return (
