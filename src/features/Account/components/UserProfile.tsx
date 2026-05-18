@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator"
 import { useUser } from "@/context/UserContext"
 import { authClient } from "@/lib/auth-client"
 import { ChangeEmailDialog } from "./ChangeEmailDialog"
+import { DeleteAccountSection } from "./DeleteAccountSection"
 
 const UpdateProfileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name cannot exceed 100 characters"),
@@ -282,6 +283,8 @@ export function UserProfile() {
           </div>
         </CardContent>
       </Card>
+
+      <DeleteAccountSection userEmail={user?.email ?? ""} />
     </div>
   )
 }

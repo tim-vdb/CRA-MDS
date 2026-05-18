@@ -113,3 +113,39 @@ export async function updateClient(id: string, input: UpdateClientInput) {
   revalidatePath(`/clients/${id}`);
   revalidatePath(`/clients`);
 }
+
+export async function toggleClientActive(id: string) {
+  const user = await getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const client = await prisma.clients.findUnique({
+    where: { id },
+    select: { userId: true, isActive: true },
+  });
+
+  if (!client || client.userId !== user.id) throw new Error("Unauthorized");
+
+  await prisma.clients.update({
+    where: { id },
+    data: { isActive: !client.isActive },
+  });
+
+  revalidatePath("/clients");
+}
+
+export async function deleteClient(id: string) {
+  const user = await getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const client = await prisma.clients.findUnique({
+    where: { id },
+    select: { userId: true },
+  });
+
+  if (!client || client.userId !== user.id) throw new Error("Unauthorized");
+
+  await prisma.clients.delete({ where: { id } });
+
+  revalidatePath("/clients");
+  revalidatePath("/");
+}
