@@ -1,8 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import type { Activity, Clients, Invoice } from "@/generated/prisma_client";
-import { Receipt } from "lucide-react";
+import dayjs from "dayjs";
 import DetailledTable from "../../CRAS/components/DetailledTable";
 import SummaryTable from "../../CRAS/components/SummaryTable";
 import { useState } from "react";
@@ -15,6 +14,16 @@ interface ClientTabsProps {
     dailyRate: number;
 }
 
+function initBilledByMonth(cras: CRAWithInvoices[]): Record<string, string> {
+    const acc: Record<string, number> = {};
+    for (const cra of cras) {
+        const key = dayjs(cra.date).format("YYYY-MM");
+        const invoiceTotal = cra.invoices.reduce((s, inv) => s + inv.amountHT, 0);
+        acc[key] = (acc[key] ?? 0) + invoiceTotal;
+    }
+    return Object.fromEntries(Object.entries(acc).map(([k, v]) => [k, v.toString()]));
+}
+
 export default function ClientTabs({ cras, client, dailyRate }: ClientTabsProps) {
     const [editedCras, setEditedCras] = useState<Record<string, { daysWorked: string }>>(
         cras.reduce((acc, cra) => {
@@ -22,6 +31,11 @@ export default function ClientTabs({ cras, client, dailyRate }: ClientTabsProps)
             return acc;
         }, {} as Record<string, { daysWorked: string }>)
     );
+
+    const [editedBilled, setEditedBilled] = useState<Record<string, string>>(
+        () => initBilledByMonth(cras)
+    );
+
     const maxDays = client.maxDays ?? 0;
     const maxBudget = dailyRate * maxDays;
 
@@ -36,6 +50,8 @@ export default function ClientTabs({ cras, client, dailyRate }: ClientTabsProps)
                     maxBudget={maxBudget}
                     editedCras={editedCras}
                     setEditedCras={setEditedCras}
+                    editedBilled={editedBilled}
+                    setEditedBilled={setEditedBilled}
                 />
             </div>
 
@@ -47,6 +63,7 @@ export default function ClientTabs({ cras, client, dailyRate }: ClientTabsProps)
                     maxDays={maxDays}
                     maxBudget={maxBudget}
                     editedCras={editedCras}
+                    editedBilled={editedBilled}
                 />
             </div>
         </div>
