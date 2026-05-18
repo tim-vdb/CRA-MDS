@@ -197,7 +197,7 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                                 >
                                     <Link href="/dashboard">
                                         <CalendarPlus className="h-3.5 w-3.5 mr-1.5" />
-                                        Saisir mes premiers jours sur le dashboard
+                                        Enter my activities
                                     </Link>
                                 </Button>
                             )}
@@ -256,20 +256,6 @@ export default function ClientInfos({ client }: ClientInfosProps) {
                             : "No pending amount"
                     }
                 />
-                {/* <KpiCard
-                    label="Progress"
-                    value={progress !== null ? `${Math.round(progress)} %` : "—"}
-                    sub={
-                        progress === null
-                            ? "No cap defined"
-                            : progress >= 100
-                                ? "Budget exceeded!"
-                                : progress >= 80
-                                    ? "Watch your budget"
-                                    : "Within contract limits"
-                    }
-                    warning={progress !== null && progress >= 80}
-                /> */}
             </div>
 
             {/* ── Progress bar ────────────────────────────────── */}

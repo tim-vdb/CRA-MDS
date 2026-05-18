@@ -29,8 +29,8 @@ dayjs.locale("fr");
 type CRAWithInvoices = Activity & { invoices: Invoice[] };
 
 interface MonthData {
-    monthYear: string; // "avril 2026"
-    month: number; // 0-11
+    monthYear: string;
+    month: number;
     year: number;
     cras: CRAWithInvoices[];
     totalDaysInMonth: number;
@@ -63,7 +63,6 @@ export default function DetailledTable({
     const [isModified, setIsModified] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
-    // Group CRA by month/year
     const groupByMonth = (): MonthData[] => {
         const monthMap = new Map<string, CRAWithInvoices[]>();
 
@@ -76,7 +75,6 @@ export default function DetailledTable({
             monthMap.get(key)!.push(cra);
         });
 
-        // Convert to array and sort by year/month ascending
         return Array.from(monthMap.entries())
             .map(([key, craList]) => {
                 const date = dayjs(key, "YYYY-MM");
@@ -130,7 +128,6 @@ export default function DetailledTable({
         return signed && value > 0 ? `+${formatted}` : formatted;
     }
 
-    // Handlers
     const handleSave = async () => {
         setIsSaving(true);
         try {
@@ -214,7 +211,6 @@ export default function DetailledTable({
         <Card className="overflow-hidden">
             <div className="border-b bg-muted/30 px-4 py-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    {/* Infos Daily rate & Cap */}
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                         <div className="flex items-center gap-2">
                             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -242,7 +238,6 @@ export default function DetailledTable({
                         )}
                     </div>
 
-                    {/* Boutons d'action */}
                     {isModified && (
                         <div className="flex gap-2">
                             <Button

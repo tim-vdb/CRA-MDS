@@ -23,7 +23,7 @@ const ROUTE_LABELS: Record<string, string> = {
 }
 
 function getLabel(segment: string, index: number, segments: string[]): string {
-  if (index > 0 && segments[index - 1] === "clients") return "Fiche client"
+  if (index > 0 && segments[index - 1] === "clients") return "Customer File"
   return ROUTE_LABELS[segment] ?? (segment.charAt(0).toUpperCase() + segment.slice(1))
 }
 
