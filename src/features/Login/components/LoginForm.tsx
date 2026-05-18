@@ -46,22 +46,26 @@ export default function LoginForm() {
 
   return (
     <div className="flex items-center justify-center text-foreground min-h-screen">
-      <div className="bg-white dark:bg-white dark:border-zinc-300 rounded-3xl p-10 w-full max-w-md shadow-lg">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-10 w-full max-w-md shadow-lg">
         <div className="text-center mb-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-zinc-700 font-inter">
+          <p className="text-xs uppercase tracking-[0.25em] text-zinc-700 dark:text-zinc-400 font-inter">
             Sign in
           </p>
-          <h2 className="text-2xl leading-tight text-zinc-950 dark:text-zinc-900 mt-1">
+          <h2 className="text-2xl leading-tight text-zinc-950 dark:text-zinc-50 mt-1">
             Welcome to CRA Solutions
           </h2>
-          <p className="font-inter text-sm text-zinc-600 mt-3">
+          <p className="font-inter text-sm text-zinc-600 dark:text-zinc-400 mt-3">
             Connect to your account to access your dashboard
           </p>
         </div>
 
         <Button
           variant="outline"
-          className={cn("w-full gap-2 mb-4 border-zinc-300 dark:border-zinc-300 text-zinc-800 dark:text-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-100")}
+          className={cn(
+            "w-full gap-2 mb-4 border-zinc-300 dark:border-zinc-700",
+            "bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100",
+            "hover:bg-zinc-100 dark:hover:bg-zinc-700"
+          )}
           disabled={googleLoading}
           onClick={handleGoogleSignIn}
         >
@@ -101,7 +105,11 @@ export default function LoginForm() {
         <Button
           type="button"
           variant="outline"
-          className={cn("w-full gap-2 mb-6 border-zinc-300 dark:border-zinc-300 text-zinc-800 dark:text-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-100")}
+          className={cn(
+            "w-full gap-2 mb-6 border-zinc-300 dark:border-zinc-700",
+            "bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100",
+            "hover:bg-zinc-100 dark:hover:bg-zinc-700"
+          )}
           onClick={handleGithubSignIn}
           disabled={githubLoading}
         >
