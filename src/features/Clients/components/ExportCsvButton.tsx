@@ -24,14 +24,15 @@ interface ExportCsvButtonProps {
     | "validatedAt"
     | "rejectedAt"
   >[];
+  editedBilled?: Record<string, string>;
 }
 
-export function ExportCsvButton({ client, activities }: ExportCsvButtonProps) {
+export function ExportCsvButton({ client, activities, editedBilled }: ExportCsvButtonProps) {
   const disabled = activities.length === 0;
 
   function handleClick() {
     try {
-      exportClientActivitiesToCsv(client, activities);
+      exportClientActivitiesToCsv(client, activities, editedBilled ?? {});
       toast.success(`Exported ${activities.length} activity entries`);
     } catch (error) {
       toast.error(

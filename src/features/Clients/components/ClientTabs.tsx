@@ -4,6 +4,7 @@ import type { Activity, Clients, Invoice } from "@/generated/prisma_client";
 import dayjs from "dayjs";
 import DetailledTable from "../../CRAS/components/DetailledTable";
 import SummaryTable from "../../CRAS/components/SummaryTable";
+import { ExportCsvButton } from "./ExportCsvButton";
 import { useState } from "react";
 
 type CRAWithInvoices = Activity & { invoices: Invoice[] };
@@ -42,7 +43,14 @@ export default function ClientTabs({ cras, client, dailyRate }: ClientTabsProps)
     return (
         <div className="space-y-6">
             <div className="space-y-4">
-                <h3 className="text-sm font-semibold">Activity report detail</h3>
+                <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold">Activity report detail</h3>
+                    <ExportCsvButton
+                        client={client}
+                        activities={cras}
+                        editedBilled={editedBilled}
+                    />
+                </div>
                 <DetailledTable
                     cras={cras}
                     dailyRate={dailyRate}
