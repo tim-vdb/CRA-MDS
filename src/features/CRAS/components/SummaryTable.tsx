@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/table";
 import type { Activity, Invoice } from "@/generated/prisma_client";
 import { cn } from "@/utils/utils";
-import { useState } from "react";
 
 type CRAWithInvoices = Activity & { invoices: Invoice[] };
 
@@ -19,6 +18,7 @@ interface SummaryTableProps {
     maxDays: number;
     maxBudget: number;
     editedCras: Record<string, { daysWorked: string }>;
+    editedBilled: Record<string, string>;
 }
 
 export default function SummaryTable({
@@ -27,6 +27,7 @@ export default function SummaryTable({
     maxDays,
     maxBudget,
     editedCras,
+    editedBilled,
 }: SummaryTableProps) {
 
     function fmtEur(value: number, signed = false) {
@@ -83,8 +84,8 @@ export default function SummaryTable({
     );
 
     const totalTheorique = totalDays * dailyRate;
-    const totalEffectif = cras.reduce(
-        (sum, cra) => sum + cra.invoices.reduce((s, inv) => s + inv.amountHT, 0),
+    const totalEffectif = Object.values(editedBilled).reduce(
+        (sum, v) => sum + (parseFloat(v) || 0),
         0
     );
 
