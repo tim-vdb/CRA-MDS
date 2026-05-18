@@ -46,6 +46,8 @@ interface DetailledTableProps {
     setEditedCras: React.Dispatch<
         React.SetStateAction<Record<string, { daysWorked: string }>>
     >;
+    editedBilled: Record<string, string>;
+    setEditedBilled: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
 export default function DetailledTable({
@@ -55,6 +57,8 @@ export default function DetailledTable({
     maxBudget,
     editedCras,
     setEditedCras,
+    editedBilled,
+    setEditedBilled,
 }: DetailledTableProps) {
     const [isModified, setIsModified] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -323,13 +327,16 @@ export default function DetailledTable({
                         </TableRow>
                     ) : (
                         monthData.map((month) => {
+                            const monthKey = `${month.year}-${String(month.month + 1).padStart(2, "0")}`;
+                            const billedRaw = editedBilled[monthKey] ?? "0";
+                            const billedValue = parseFloat(billedRaw) || 0;
+
                             const factureTheorique = month.totalDaysInMonth * dailyRate;
-                            const factureEffectif = month.totalFactureEffectif;
                             const ecartThMax = factureTheorique;
-                            const ecartEffTh = factureEffectif - factureTheorique;
+                            const ecartEffTh = billedValue - factureTheorique;
 
                             return (
-                                <TableRow key={`${month.year}-${month.month}`} className="hover:bg-muted/30">
+                                <TableRow key={monthKey} className="hover:bg-muted/30">
                                     <TableCell className="font-medium">
                                         <div className="flex items-center gap-2">
                                             <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
@@ -342,8 +349,24 @@ export default function DetailledTable({
                                     <TableCell className="text-right tabular-nums">
                                         {dailyRate > 0 ? fmtEur(factureTheorique) : "—"}
                                     </TableCell>
-                                    <TableCell className="text-right tabular-nums">
-                                        {fmtEur(factureEffectif)}
+                                    <TableCell className="text-right">
+                                        <div className="flex items-center justify-end">
+                                            <input
+                                                type="number"
+                                                min={0}
+                                                step={0.01}
+                                                value={billedRaw}
+                                                onChange={(e) => {
+                                                    setEditedBilled((prev) => ({
+                                                        ...prev,
+                                                        [monthKey]: e.target.value,
+                                                    }));
+                                                }}
+                                                className="w-28 text-right tabular-nums text-sm bg-transparent border border-input rounded-md px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
+                                                aria-label={`Actual billed for ${month.monthYear}`}
+                                            />
+                                            <span className="ml-1 text-sm text-muted-foreground">€</span>
+                                        </div>
                                     </TableCell>
                                     <TableCell className="text-right tabular-nums text-muted-foreground/60">
                                         {fmtEur(0)}
