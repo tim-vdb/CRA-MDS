@@ -28,7 +28,7 @@ export default async function HomePage() {
   return (
     <div className="container mx-auto py-8 px-4">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Comptes Rendus d&apos;Activité</h1>
+        <h1 className="text-2xl font-semibold">Activity Reports</h1>
       </div>
       <ActivityRefreshProvider>
         <div className="space-y-6">
