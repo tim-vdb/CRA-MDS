@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { useUser } from "@/context/UserContext"
 import { authClient } from "@/lib/auth-client"
-import { ChangeEmailDialog } from "./components/ChangeEmailDialog"
+import { ChangeEmailDialog } from "./ChangeEmailDialog"
 
 const UpdateProfileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100, "Name cannot exceed 100 characters"),

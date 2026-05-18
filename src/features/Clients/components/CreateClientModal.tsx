@@ -31,7 +31,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   CreateClientSchema,
   type CreateClientInput,
-} from "../clients.schema";
+} from "../server/clients.schema";
 import { createClient } from "../server/clients.action";
 
 const DEFAULT_VALUES: CreateClientInput = {

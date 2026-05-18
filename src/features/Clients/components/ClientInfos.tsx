@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { Activity, Clients, Invoice } from "@/generated/prisma_client";
 import {
@@ -11,7 +12,9 @@ import {
     Receipt,
     CalendarRange,
     Briefcase,
+    CalendarPlus,
 } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/utils/utils";
 import EditClientModal from "./EditClientModal";
 import { ExportCsvButton } from "./ExportCsvButton";
@@ -187,10 +190,23 @@ export default function ClientInfos({ client }: ClientInfosProps) {
 
                         {/* Actions */}
                         <div className="flex flex-wrap gap-2 shrink-0">
-                            <ExportCsvButton
-                                client={client}
-                                activities={client.activities}
-                            />
+                            {client.activities.length === 0 ? (
+                                <Button
+                                    asChild
+                                    size="sm"
+                                    className="bg-primary"
+                                >
+                                    <Link href="/">
+                                        <CalendarPlus className="h-3.5 w-3.5 mr-1.5" />
+                                        Saisir mes activités
+                                    </Link>
+                                </Button>
+                            ) : (
+                                <ExportCsvButton
+                                    client={client}
+                                    activities={client.activities}
+                                />
+                            )}
                             <EditClientModal client={client} />
                         </div>
                     </div>

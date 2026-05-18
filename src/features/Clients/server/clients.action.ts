@@ -8,7 +8,7 @@ import {
   UpdateClientSchema,
   type CreateClientInput,
   type UpdateClientInput,
-} from "../clients.schema";
+} from "./clients.schema";
 
 export async function createClient(input: CreateClientInput) {
   const user = await getUser();

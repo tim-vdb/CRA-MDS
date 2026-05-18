@@ -28,8 +28,8 @@ export function EditableDayInput({ initialValue, onCommit, onCancel }: EditableD
       autoFocus
       type="number"
       step="0.25"
-      min="0"
-      max="1.5"
+      min="0.25"
+      max="1"
       value={value}
       onFocus={(e) => e.target.select()}
       onChange={(e) => setValue(e.target.value)}
