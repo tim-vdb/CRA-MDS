@@ -27,6 +27,7 @@ export const auth = betterAuth({
   },
   trustedOrigins: [
     process.env.BASE_URL ?? 'http://localhost:3000',
+    'http://localhost:3000',
   ],
   plugins: [
     nextCookies(),
