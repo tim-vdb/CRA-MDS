@@ -2,6 +2,7 @@
   "name": "CRA-MDS",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@10.0.0",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -18,7 +19,7 @@
     "generate": "doppler run -- prisma generate",
     "push": "doppler run -- prisma db push",
     "studio": "doppler run -- prisma studio",
-    "all": "doppler run -- npx prisma migrate dev && concurrently --raw \"doppler run -- npm run dev\" \"npm run studio -- -p 5555\"",
+    "all": "doppler run -- prisma migrate dev && concurrently --raw \"doppler run -- npm run dev\" \"npm run studio -- -p 5555\"",
     "all:env": "npx prisma migrate dev  && concurrently \"npm run dev\" \"npm run studio\"",
     "all:local": "npx prisma generate  && npx prisma db push  && concurrently \"npm run dev\" \"npm run studio\""
   },
