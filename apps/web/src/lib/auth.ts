@@ -4,6 +4,7 @@ import { prisma } from './prisma';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
+import { expo } from '@better-auth/expo';
 import { sendEmail } from './email';
 
 export const auth = betterAuth({
@@ -28,8 +29,15 @@ export const auth = betterAuth({
   trustedOrigins: [
     process.env.BASE_URL ?? 'http://localhost:3000',
     'http://localhost:3000',
+    // Mobile app deep-link scheme
+    'crasolutions://',
+    // Expo Go dev deep-links (only trusted outside production)
+    ...(process.env.NODE_ENV !== 'production'
+      ? ['exp://', 'exp://**', 'exp://192.168.*.*:*/**', 'exp://10.*.*.*:*/**']
+      : []),
   ],
   plugins: [
+    expo(),
     nextCookies(),
   ],
   emailVerification: {
@@ -105,7 +113,7 @@ export const auth = betterAuth({
   user: {
     changeEmail: {
       enabled: true,
-      sendChangeEmailVerification: async ({ user, newEmail, url }) => {
+      sendChangeEmailVerification: async ({ user, newEmail, url }: { user: { name?: string | null; email: string }; newEmail: string; url: string }) => {
         await sendEmail({
           to: user.email,
           subject: 'Confirm your email change – CRA Solutions',

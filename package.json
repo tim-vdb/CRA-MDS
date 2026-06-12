@@ -8,6 +8,7 @@
   "scripts": {
     "all": "npm run all --workspace=apps/web",
     "all:mobile": "npm run start --workspace=apps/mobile",
-    "build": "npm run build --workspace=apps/web"
+    "build": "npm run build --workspace=apps/web",
+    "tunnel": "C:\\Users\\timot\\bin\\cloudflared.exe tunnel --url http://localhost:3000 --protocol http2"
   }
 }
