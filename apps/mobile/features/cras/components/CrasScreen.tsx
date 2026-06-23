@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { MonthSelector } from '@/features/dashboard/components/MonthSelector';
 import { useCras } from '../hooks';
 import type { CraClient, CraSummary } from '../types';
- 
+
 function buildSummary(client: CraClient): CraSummary {
     const totalDays = client.activities.reduce((s, a) => s + a.daysWorked, 0);
     const totalBilledHT = client.activities.reduce(
@@ -18,7 +18,7 @@ function buildSummary(client: CraClient): CraSummary {
     const theoreticalBilled = totalDays * (client.dailyRate ?? 0);
     const gap = theoreticalBilled - totalBilledHT;
     const remainingDays = (client.maxDays ?? 0) - totalDays;
- 
+
     return {
         clientId: client.id,
         clientName: client.name,
@@ -31,17 +31,17 @@ function buildSummary(client: CraClient): CraSummary {
         remainingDays,
     };
 }
- 
+
 function fmt(n: number) {
     return n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 }
- 
+
 function GapIcon({ gap }: { gap: number }) {
     if (gap > 0) return <TrendingDown size={14} color="#f97316" />;
     if (gap < 0) return <TrendingUp size={14} color="#ef4444" />;
     return <Minus size={14} color="#a1a1aa" />;
 }
- 
+
 function SummaryRow({ label, value, sub }: { label: string; value: string; sub?: string }) {
     return (
         <View className="flex-row items-center justify-between py-2">
@@ -53,10 +53,10 @@ function SummaryRow({ label, value, sub }: { label: string; value: string; sub?:
         </View>
     );
 }
- 
+
 function ClientCraCard({ summary }: { summary: CraSummary }) {
     const gapColor = summary.gap === 0 ? 'text-muted-foreground' : summary.gap > 0 ? 'text-orange-500' : 'text-destructive';
- 
+
     return (
         <Card className="mb-3">
             <CardHeader className="pb-1">
@@ -74,15 +74,9 @@ function ClientCraCard({ summary }: { summary: CraSummary }) {
                     sub={summary.maxDays != null ? `/ ${summary.maxDays} j max` : undefined}
                 />
                 <Separator />
-                <SummaryRow
-                    label="Facturé"
-                    value={fmt(summary.totalBilledHT)}
-                />
+                <SummaryRow label="Facturé" value={fmt(summary.totalBilledHT)} />
                 <Separator />
-                <SummaryRow
-                    label="Théorique"
-                    value={fmt(summary.theoreticalBilled)}
-                />
+                <SummaryRow label="Théorique" value={fmt(summary.theoreticalBilled)} />
                 <Separator />
                 <View className="flex-row items-center justify-between py-2">
                     <Text className="text-sm text-muted-foreground">Écart</Text>
@@ -106,18 +100,18 @@ function ClientCraCard({ summary }: { summary: CraSummary }) {
         </Card>
     );
 }
- 
+
 export default function CrasScreen() {
     const now = new Date();
     const [month, setMonth] = useState(now.getMonth() + 1);
     const [year, setYear] = useState(now.getFullYear());
     const { data: clients = [], isLoading, error, refetch, isRefetching } = useCras(month, year);
- 
+
     const summaries = clients.map(buildSummary);
     const totalDays = summaries.reduce((s, c) => s + c.totalDays, 0);
     const totalBilled = summaries.reduce((s, c) => s + c.totalBilledHT, 0);
     const totalTheoretical = summaries.reduce((s, c) => s + c.theoreticalBilled, 0);
- 
+
     if (isLoading) {
         return (
             <View className="flex-1 items-center justify-center">
@@ -125,7 +119,7 @@ export default function CrasScreen() {
             </View>
         );
     }
- 
+
     if (error) {
         return (
             <View className="flex-1 items-center justify-center gap-4 px-8">
@@ -136,7 +130,7 @@ export default function CrasScreen() {
             </View>
         );
     }
- 
+
     return (
         <ScrollView
             className="flex-1 bg-background"
@@ -150,7 +144,7 @@ export default function CrasScreen() {
                 </Text>
                 <MonthSelector month={month} year={year} onChange={(m, y) => { setMonth(m); setYear(y); }} />
             </View>
- 
+
             {/* Global summary card */}
             {summaries.length > 0 && (
                 <Card>
@@ -177,7 +171,7 @@ export default function CrasScreen() {
                     </CardContent>
                 </Card>
             )}
- 
+
             {/* Per-client cards */}
             {summaries.length === 0 ? (
                 <View className="mt-12 items-center">
@@ -186,7 +180,7 @@ export default function CrasScreen() {
             ) : (
                 summaries.map((s) => <ClientCraCard key={s.clientId} summary={s} />)
             )}
- 
+
             <View className="h-8" />
         </ScrollView>
     );

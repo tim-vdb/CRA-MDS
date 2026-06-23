@@ -44,14 +44,8 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={26} name="person.circle.fill" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="users"
-        options={{
-          title: 'Utilisateurs',
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="person.3.fill" color={color} />,
-        }}
-      />
-      {/* Hide old default tabs */}
+      {/* Pages cachées de la tab bar */}
+      <Tabs.Screen name="users" options={{ href: null }} />
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="explore" options={{ href: null }} />
     </Tabs>
