@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, RefreshControl, TextInput, Alert } from 'react-native';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react-native';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { MonthSelector } from '@/features/dashboard/components/MonthSelector';
-import { useCras } from '../hooks';
+import { useCras, useUpsertActivityInvoice, useUpdateInvoiceAmount } from '../hooks';
 import type { CraClient, CraSummary } from '../types';
 
 function buildSummary(client: CraClient): CraSummary {
@@ -54,8 +54,24 @@ function SummaryRow({ label, value, sub }: { label: string; value: string; sub?:
     );
 }
 
-function ClientCraCard({ summary }: { summary: CraSummary }) {
-    const gapColor = summary.gap === 0 ? 'text-muted-foreground' : summary.gap > 0 ? 'text-orange-500' : 'text-destructive';
+function ClientCraCard({
+    client,
+    summary,
+    billedInput,
+    onBilledChange,
+    onBilledBlur,
+    isSaving,
+}: {
+    client: CraClient;
+    summary: CraSummary;
+    billedInput: string;
+    onBilledChange: (value: string) => void;
+    onBilledBlur: () => void;
+    isSaving: boolean;
+}) {
+    const billedValue = parseFloat(billedInput.replace(',', '.')) || 0;
+    const gap = summary.theoreticalBilled - billedValue;
+    const gapColor = gap === 0 ? 'text-muted-foreground' : gap > 0 ? 'text-orange-500' : 'text-destructive';
 
     return (
         <Card className="mb-3">
@@ -74,16 +90,34 @@ function ClientCraCard({ summary }: { summary: CraSummary }) {
                     sub={summary.maxDays != null ? `/ ${summary.maxDays} j max` : undefined}
                 />
                 <Separator />
-                <SummaryRow label="Facturé" value={fmt(summary.totalBilledHT)} />
+                <View className="flex-row items-center justify-between py-2">
+                    <View className="flex-row items-center gap-2">
+                        <Text className="text-sm text-muted-foreground">Facturé</Text>
+                        {isSaving && (
+                            <ActivityIndicator size="small" color="#a1a1aa" />
+                        )}
+                    </View>
+                    <View className="flex-row items-center gap-1">
+                        <TextInput
+                            value={billedInput}
+                            onChangeText={onBilledChange}
+                            onBlur={onBilledBlur}
+                            keyboardType="numeric"
+                            selectTextOnFocus
+                            className="min-w-[80px] rounded-md border border-input bg-background px-2 py-1 text-right text-sm font-medium text-foreground"
+                        />
+                        <Text className="text-sm text-muted-foreground">€</Text>
+                    </View>
+                </View>
                 <Separator />
                 <SummaryRow label="Théorique" value={fmt(summary.theoreticalBilled)} />
                 <Separator />
                 <View className="flex-row items-center justify-between py-2">
                     <Text className="text-sm text-muted-foreground">Écart</Text>
                     <View className="flex-row items-center gap-1.5">
-                        <GapIcon gap={summary.gap} />
+                        <GapIcon gap={gap} />
                         <Text className={`text-sm font-semibold ${gapColor}`}>
-                            {summary.gap === 0 ? '—' : fmt(Math.abs(summary.gap))}
+                            {gap === 0 ? '—' : fmt(Math.abs(gap))}
                         </Text>
                     </View>
                 </View>
@@ -106,11 +140,54 @@ export default function CrasScreen() {
     const [month, setMonth] = useState(now.getMonth() + 1);
     const [year, setYear] = useState(now.getFullYear());
     const { data: clients = [], isLoading, error, refetch, isRefetching } = useCras(month, year);
+    const [billedOverrides, setBilledOverrides] = useState<Record<string, string>>({});
+    const [savingClientId, setSavingClientId] = useState<string | null>(null);
+
+    const upsertInvoice = useUpsertActivityInvoice(month, year);
+    const updateInvoice = useUpdateInvoiceAmount(month, year);
 
     const summaries = clients.map(buildSummary);
+
+    const getBilledInput = (clientId: string, defaultValue: number) =>
+        billedOverrides[clientId] ?? defaultValue.toString();
+
     const totalDays = summaries.reduce((s, c) => s + c.totalDays, 0);
-    const totalBilled = summaries.reduce((s, c) => s + c.totalBilledHT, 0);
+    const totalBilled = summaries.reduce((s, c) => {
+        const raw = getBilledInput(c.clientId, c.totalBilledHT);
+        return s + (parseFloat(raw.replace(',', '.')) || 0);
+    }, 0);
     const totalTheoretical = summaries.reduce((s, c) => s + c.theoreticalBilled, 0);
+
+    async function handleSaveBilled(client: CraClient) {
+        const raw = billedOverrides[client.id];
+        if (raw === undefined) return; // pas de changement
+
+        const amountHT = parseFloat(raw.replace(',', '.'));
+        if (isNaN(amountHT) || amountHT < 0) return;
+
+        setSavingClientId(client.id);
+        try {
+            // Cherche l'invoice existante sur la première activité du mois
+            const firstActivity = client.activities[0];
+            if (!firstActivity) return;
+
+            const existingInvoice = firstActivity.invoices[0];
+
+            if (existingInvoice) {
+                await updateInvoice.mutateAsync({ invoiceId: existingInvoice.id, amountHT });
+            } else {
+                await upsertInvoice.mutateAsync({
+                    activityId: firstActivity.id,
+                    clientId: client.id,
+                    amountHT,
+                });
+            }
+        } catch (e) {
+            Alert.alert('Erreur', e instanceof Error ? e.message : 'Impossible de sauvegarder');
+        } finally {
+            setSavingClientId(null);
+        }
+    }
 
     if (isLoading) {
         return (
@@ -178,7 +255,19 @@ export default function CrasScreen() {
                     <Text className="text-sm text-muted-foreground">Aucune activité ce mois-ci.</Text>
                 </View>
             ) : (
-                summaries.map((s) => <ClientCraCard key={s.clientId} summary={s} />)
+                clients.map((client, i) => (
+                    <ClientCraCard
+                        key={client.id}
+                        client={client}
+                        summary={summaries[i]}
+                        billedInput={getBilledInput(client.id, summaries[i].totalBilledHT)}
+                        onBilledChange={(val) =>
+                            setBilledOverrides((prev) => ({ ...prev, [client.id]: val }))
+                        }
+                        onBilledBlur={() => handleSaveBilled(client)}
+                        isSaving={savingClientId === client.id}
+                    />
+                ))
             )}
 
             <View className="h-8" />
