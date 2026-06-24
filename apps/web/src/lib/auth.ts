@@ -29,6 +29,8 @@ export const auth = betterAuth({
   trustedOrigins: [
     process.env.BASE_URL ?? 'http://localhost:3000',
     'http://localhost:3000',
+    'http://localhost:8081',
+    `http://10.26.128.173:8081`,
     // Mobile app deep-link scheme
     'crasolutions://',
     // Expo Go dev deep-links (only trusted outside production)

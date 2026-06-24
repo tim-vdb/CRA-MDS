@@ -45,7 +45,7 @@ const config: ExpoConfig = {
         reactCompiler: true,
     },
     extra: {
-        apiUrl: process.env.API_URL ?? 'https://cra-mds.vercel.app',
+        apiUrl: process.env.API_URL ?? 'http://10.26.128.173:3000',
     },
 };
 

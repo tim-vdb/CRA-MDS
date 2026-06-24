@@ -1,14 +1,14 @@
 import '../global.css';
 
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useSession } from '@/lib/auth-client';
-import { listClients } from '@/features/clients/api';
+import { signIn, useSession } from '@/lib/auth-client';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -16,56 +16,45 @@ export const unstable_settings = {
 
 const queryClient = new QueryClient();
 
-function AuthGuard() {
+function AuthGuard({ onReady }: { onReady: () => void }) {
   const { data: session, isPending } = useSession();
-  const segments = useSegments();
-  const router = useRouter();
-  const hasRedirected = useRef(false);
+  const hasAutoSignedIn = useRef(false);
+
+  // Connexion automatique au compte fixe
+  useEffect(() => {
+    if (isPending || session || hasAutoSignedIn.current) return;
+    hasAutoSignedIn.current = true;
+    signIn.email({ email: 'john-doe@cra.fr', password: 'password123' })
+      .catch(() => { hasAutoSignedIn.current = false; });
+  }, [isPending, session]);
 
   useEffect(() => {
-    if (isPending) return;
-
-    const inAuthGroup = segments[0] === '(auth)';
-
-    if (!session && !inAuthGroup) {
-      hasRedirected.current = false;
-      router.replace('/(auth)/login');
-      return;
-    }
-
-    if (session && inAuthGroup && !hasRedirected.current) {
-      hasRedirected.current = true;
-      // First-visit check: redirect to clients if no clients exist yet
-      listClients()
-        .then((clients) => {
-          if (clients.length === 0) {
-            router.replace('/(tabs)/clients');
-          } else {
-            router.replace('/(tabs)/dashboard');
-          }
-        })
-        .catch(() => {
-          // Fallback to dashboard on error
-          router.replace('/(tabs)/dashboard');
-        });
-    }
-  }, [session, isPending, segments]);
+    if (isPending || !session) return;
+    onReady();
+  }, [session, isPending]);
 
   return null;
 }
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [ready, setReady] = useState(false);
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AuthGuard />
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-        </Stack>
+        <AuthGuard onReady={() => setReady(true)} />
+        {!ready ? (
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" />
+          </View>
+        ) : (
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+          </Stack>
+        )}
         <StatusBar style="auto" />
       </ThemeProvider>
     </QueryClientProvider>
